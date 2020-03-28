@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/eu/Universidade/3º ano/2º Semestre/CG/Fase1/generator/generator.h
+stdio.h
+-
+stdlib.h
+-
+vector
+-
+
+/home/eu/Universidade/3º ano/2º Semestre/CG/Fase1/generator/main.cpp
+stdio.h
+-
+stdlib.h
+-
+string
+-
+string.h
+-
+generator.h
+/home/eu/Universidade/3º ano/2º Semestre/CG/Fase1/generator/generator.h
+
