@@ -70,7 +70,6 @@ void renderScene(void)
 
     // put the geometric transformations here
     draw_scene(scene.groups);
-    printf("%d\n", scene.nModels);
 
     // End of frame
     glutSwapBuffers();

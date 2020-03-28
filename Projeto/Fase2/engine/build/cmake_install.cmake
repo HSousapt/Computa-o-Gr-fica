@@ -1,4 +1,4 @@
-# Install script for directory: /home/eu/Universidade/3º ano/2º Semestre/CG/Projeto/Fase2/engine
+# Install script for directory: /home/eu/Universidade/Git/Computação Gráfica/Projeto/Fase2/engine
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -12,7 +12,7 @@ if(NOT DEFINED CMAKE_INSTALL_CONFIG_NAME)
     string(REGEX REPLACE "^[^A-Za-z0-9_]+" ""
            CMAKE_INSTALL_CONFIG_NAME "${BUILD_TYPE}")
   else()
-    set(CMAKE_INSTALL_CONFIG_NAME "Debug")
+    set(CMAKE_INSTALL_CONFIG_NAME "")
   endif()
   message(STATUS "Install configuration: \"${CMAKE_INSTALL_CONFIG_NAME}\"")
 endif()
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/eu/Universidade/3º ano/2º Semestre/CG/Projeto/Fase2/engine/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/eu/Universidade/Git/Computação Gráfica/Projeto/Fase2/engine/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
