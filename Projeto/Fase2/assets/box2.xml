@@ -1,5 +1,7 @@
 <scene>
 	<group>
+		<translate Z="10" />
+		<scale X="2" Y="2" Z="2" />
 		<models>
 			<model file="box.3d" />
 		</models>

@@ -1,3 +1,0 @@
-/home/eu/Universidade/Git/Computação Gráfica/Projeto/Fase2/engine/build/CMakeFiles/rebuild_cache.dir
-/home/eu/Universidade/Git/Computação Gráfica/Projeto/Fase2/engine/build/CMakeFiles/engine.dir
-/home/eu/Universidade/Git/Computação Gráfica/Projeto/Fase2/engine/build/CMakeFiles/edit_cache.dir
