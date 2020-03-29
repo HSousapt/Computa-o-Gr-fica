@@ -18,7 +18,7 @@ using namespace std;
 int polMode = 0;
 
 float px, py, pz;
-float radius = 25;
+float radius = 100;
 float lx = 0.0, ly = 0.0, lz = 0.0;
 float alpha = 45.0, beta = 45.0;
 int frame = 0, timebase = 0;
@@ -250,7 +250,6 @@ int main(int argc, char **argv)
     TiXmlElement *root = doc.RootElement();
     for (TiXmlElement *group = root->FirstChild("group")->ToElement(); group; group = group->NextSiblingElement())
     {
-        //scene.groups.push_back(process_groups(group));
         load_scene(&scene, group);
     }
 

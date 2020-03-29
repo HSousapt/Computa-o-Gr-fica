@@ -1,21 +1,21 @@
 <scene>
 	<group>
-		<translate Z="20" />
-		<scale X="2" Y="2" Z="2" />
+		<translate Z="60" />
+		<scale X="20" Y="20" Z="20" />
 		<models>
-            		<model file="cone.3d" /> <!-- SUN -->
+            		<model file="sphere.3d" /> <!-- SUN -->
         	</models>
 	</group>
 	<group>
 		<translate Z="13" />
-		<scale X="0.3" Y="0.3" Z="0.3" />
+		<scale X="0.23" Y="0.23" Z="0.23" />
 		<models>
             		<model file="sphere.3d" /> <!-- MERCURY -->
         	</models>
 	</group>
 	<group>
 		<translate Z="6" />
-		<scale X="0.45" Y="0.45" Z="0.45" />
+		<scale X="0.6" Y="0.6" Z="0.6" />
 		<models>
             		<model file="sphere.3d" /> <!-- VENUS -->
         	</models>
@@ -34,43 +34,43 @@
 		</group>
 	</group>
 	<group>
-		<translate Z="-4" />
-		<scale X="0.55" Y="0.55" Z="0.55" />
+		<translate Z="-20" />
+		<scale X="0.3" Y="0.3" Z="0.3" />
 		<models>
             		<model file="sphere.3d" /> <!-- MARS -->
         	</models>
 	</group>
 	<group>
-		<translate Z="-15" />
-		<scale X="1" Y="1" Z="1" />
+		<translate Z="-50" />
+		<scale X="6.72" Y="6.72" Z="6.72" />
 		<models>
             		<model file="sphere.3d" /> <!-- JUPYTER -->
         	</models>
 	</group>
 	<group>
-		<translate Z="-20" />
-		<scale X="0.9" Y="0.9" Z="0.8" />
+		<translate Z="-80" />
+		<scale X="5.67" Y="5.67" Z="5.67" />
 		<models>
             		<model file="sphere.3d" /> <!-- SATURN -->
         	</models>
 	</group>
 	<group>
-		<translate Z="-23" />
-		<scale X="0.8" Y="0.8" Z="0.8" />
+		<translate Z="-110" />
+		<scale X="2.4" Y="2.4" Z="2.4" />
 		<models>
             		<model file="sphere.3d" /> <!-- URANUS -->
         	</models>
 	</group>
 	<group>
-		<translate Z="-30" />
-		<scale X="0.7" Y="0.7" Z="0.7" />
+		<translate Z="-130" />
+		<scale X="2.33" Y="2.33" Z="2.33" />
 		<models>
             		<model file="sphere.3d" /> <!-- NEPTUNE -->
         	</models>
 	</group>
 	<group>
-		<translate Z="-36" />
-		<scale X="0.3" Y="0.3" Z="0.3" />
+		<translate Z="-150" />
+		<scale X="0.1" Y="0.1" Z="0.1" />
 		<models>
             		<model file="sphere.3d" /> <!-- PLUTO -->
         	</models>
