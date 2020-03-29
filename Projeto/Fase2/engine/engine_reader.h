@@ -48,19 +48,18 @@ struct group
     vector<struct group> child;
 };
 
-//Struct that represents a scene has a vector of groups
+//Struct that represents a scene as a vector of groups and and int that tells us how many models the scene has
 struct scene
 {
     vector<struct group> groups;
     int nModels;
 };
 
-/*Function that returns the data from the .xml(received as a parameter) and stores them in a "struct group"
-ready to be used*/
-struct group process_groups(TiXmlElement *);
-
 //Fuction that draws the geometric transformations
 void draw_gt(struct group group);
 
 //Loads the data from the .xml file and stores it in the struct scene
 void load_scene(struct scene *, TiXmlElement *);
+
+//Draws the models without VBO's
+void draw_models(struct group);

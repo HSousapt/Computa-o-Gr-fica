@@ -13,17 +13,17 @@ void plane_help()
 
 void box_help()
 {
-    printf("Box->\t\t [outfile] box <width> <heigth> <depth> <divisions>(optional)\n");
+    printf("Box->\t\t >outfile> box <width> <heigth> <depth> <divisions>(optional)\n");
 }
 
 void sphere_help()
 {
-    printf("Sphere->\t [outfile] sphere <radious> <slices> <stacks>\n");
+    printf("Sphere->\t <outfile> sphere <radious> <slices> <stacks>\n");
 }
 
 void cone_help()
 {
-    printf("Cone->\t\t [outfile] <cone> <radious> <height> <slices> <stacks>\n");
+    printf("Cone->\t\t <outfile> cone <radious> <height> <slices> <stacks>\n");
 }
 
 void help()

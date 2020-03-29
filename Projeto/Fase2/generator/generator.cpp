@@ -158,7 +158,7 @@ void write_box(FILE *f, struct Box cube)
                 float coordz1 = -z + ((j + 1) * deltaZ);
 
                 //FACES LATERAIS
-                //BACK RIGH FACE
+                //BACK RIGHT FACE
                 write_triangle(f, init_triangle(
                                       point(coordx, coordy1, -z),
                                       point(coordx, coordy, -z),

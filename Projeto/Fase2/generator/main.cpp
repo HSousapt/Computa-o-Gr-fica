@@ -23,7 +23,7 @@ void sphere_help()
 
 void cone_help()
 {
-    printf("Cone->\t\t <outfile> <cone> <radious> <height> <slices> <stacks>\n");
+    printf("Cone->\t\t <outfile> cone <radious> <height> <slices> <stacks>\n");
 }
 
 void help()
