@@ -59,7 +59,7 @@ struct scene
 ready to be used*/
 struct group process_groups(TiXmlElement *);
 
-/*Fuction that draws the scene stored in a vector of groups received as its parameter*/
+//Fuction that draws the geometric transformations
 void draw_gt(struct group group);
 
 //Loads the data from the .xml file and stores it in the struct scene

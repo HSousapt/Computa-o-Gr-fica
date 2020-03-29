@@ -21,6 +21,7 @@ float px, py, pz;
 float radius = 25;
 float lx = 0.0, ly = 0.0, lz = 0.0;
 float alpha = 45.0, beta = 45.0;
+int frame = 0, timebase = 0;
 
 struct scene scene;
 
@@ -63,7 +64,7 @@ void changeSize(int w, int h)
     glMatrixMode(GL_MODELVIEW);
 }
 
-void draw_model()
+void draw_vbo()
 {
     glBindBuffer(GL_ARRAY_BUFFER, buffers[draw_counter]);
     glVertexPointer(3, GL_FLOAT, 0, 0);
@@ -79,7 +80,8 @@ void draw_scene(vector<struct group> groups)
         {
             draw_gt(group);
             draw_scene(group.child);
-            draw_model();
+            draw_vbo();
+            //draw_models(group);
         }
         glPopMatrix();
     }
@@ -87,6 +89,9 @@ void draw_scene(vector<struct group> groups)
 
 void renderScene(void)
 {
+    int time;
+    char s[64];
+    float fps;
     draw_counter = 0;
     // clear buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -101,7 +106,16 @@ void renderScene(void)
 
     draw_scene(scene.groups);
 
-    //free(buffers);
+    frame++;
+    time = glutGet(GLUT_ELAPSED_TIME);
+    if (time - timebase > 1000)
+    {
+        fps = frame * 1000.0 / (time - timebase);
+        timebase = time;
+        frame = 0;
+        sprintf(s, "FPS: %6.2f", fps);
+        glutSetWindowTitle(s);
+    }
 
     // End of frame
     glutSwapBuffers();
@@ -203,6 +217,21 @@ void fill_buffers(vector<struct group> groups)
     }
 }
 
+void prepare_vbo_data()
+{
+    n_verteces = (int *)malloc(sizeof(int) * scene.nModels);
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+
+    buffer_counter = 0;
+
+    buffers = (GLuint *)malloc(sizeof(GLuint) * scene.nModels);
+
+    glGenBuffers(scene.nModels, buffers);
+
+    fill_buffers(scene.groups);
+}
+
 int main(int argc, char **argv)
 {
     if (argc < 2)
@@ -254,14 +283,8 @@ int main(int argc, char **argv)
 
     refreshCam();
 
-    n_verteces = (int *)malloc(sizeof(int) * scene.nModels);
+    prepare_vbo_data();
 
-    glEnableClientState(GL_VERTEX_ARRAY);
-
-    buffer_counter = 0;
-    buffers = (GLuint *)malloc(sizeof(GLuint) * scene.nModels);
-    glGenBuffers(scene.nModels, buffers);
-    fill_buffers(scene.groups);
     // enter GLUT's main cycle
     glutMainLoop();
 
