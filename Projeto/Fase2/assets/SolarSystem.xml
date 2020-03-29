@@ -3,7 +3,7 @@
 		<translate Z="20" />
 		<scale X="2" Y="2" Z="2" />
 		<models>
-            		<model file="sphere.3d" /> <!-- SUN -->
+            		<model file="cone.3d" /> <!-- SUN -->
         	</models>
 	</group>
 	<group>
@@ -29,7 +29,7 @@
 		<translate X="-4" />
 		<scale X="0.4" Y="0.4" Z="0.4" />
 		<models>
-            		<model file="sphere.3d" /> <!-- MOON -->
+            		<model file="cone.3d" /> <!-- MOON -->
         	</models>
 		</group>
 	</group>

@@ -60,6 +60,7 @@ ready to be used*/
 struct group process_groups(TiXmlElement *);
 
 /*Fuction that draws the scene stored in a vector of groups received as its parameter*/
-void draw_scene(vector<struct group>);
+void draw_gt(struct group group);
 
+//Loads the data from the .xml file and stores it in the struct scene
 void load_scene(struct scene *, TiXmlElement *);

@@ -208,7 +208,7 @@ void draw_models(struct group g)
     }
 }
 
-void draw_scene(vector<struct group> groups)
+/*void draw_scene(vector<struct group> groups)
 {
     for (int i = 0; i < groups.size(); i++)
     {
@@ -221,4 +221,4 @@ void draw_scene(vector<struct group> groups)
         }
         glPopMatrix();
     }
-}
+}*/

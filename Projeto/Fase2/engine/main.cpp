@@ -24,6 +24,12 @@ float alpha = 45.0, beta = 45.0;
 
 struct scene scene;
 
+GLuint *buffers;
+
+int *n_verteces;
+
+int buffer_counter, draw_counter;
+
 //refresh the values of  px,py,pz of the camera
 void refreshCam()
 {
@@ -57,8 +63,31 @@ void changeSize(int w, int h)
     glMatrixMode(GL_MODELVIEW);
 }
 
+void draw_model()
+{
+    glBindBuffer(GL_ARRAY_BUFFER, buffers[draw_counter]);
+    glVertexPointer(3, GL_FLOAT, 0, 0);
+    glDrawArrays(GL_TRIANGLES, 0, n_verteces[draw_counter++]);
+}
+
+void draw_scene(vector<struct group> groups)
+{
+    for (int i = 0; i < groups.size(); i++)
+    {
+        struct group group = groups[i];
+        glPushMatrix();
+        {
+            draw_gt(group);
+            draw_scene(group.child);
+            draw_model();
+        }
+        glPopMatrix();
+    }
+}
+
 void renderScene(void)
 {
+    draw_counter = 0;
     // clear buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -69,7 +98,10 @@ void renderScene(void)
               0.0f, 1.0f, 0.0f);
 
     // put the geometric transformations here
+
     draw_scene(scene.groups);
+
+    //free(buffers);
 
     // End of frame
     glutSwapBuffers();
@@ -138,6 +170,39 @@ void processKeys(unsigned char key, int xx, int yy)
     glutPostRedisplay();
 }
 
+void fill_buffers(vector<struct group> groups)
+{
+    for (int k = 0; k < groups.size(); k++)
+    {
+        fill_buffers(groups[k].child);
+
+        vector<vector<struct Point>> models = groups[k].models;
+
+        for (int i = 0; i < models.size(); i++)
+        {
+
+            n_verteces[buffer_counter] += models[i].size();
+
+            glBindBuffer(GL_ARRAY_BUFFER, buffers[buffer_counter++]);
+
+            vector<struct Point> model = models[i];
+
+            float *verteces = (float *)malloc(sizeof(float *) * model.size() * 3);
+
+            for (int j = 0; j < model.size(); j++)
+            {
+                verteces[3 * j] = model[j].x;
+                verteces[3 * j + 1] = model[j].y;
+                verteces[3 * j + 2] = model[j].z;
+            }
+
+            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * model.size() * 3, verteces, GL_STATIC_DRAW);
+
+            free(verteces);
+        }
+    }
+}
+
 int main(int argc, char **argv)
 {
     if (argc < 2)
@@ -189,6 +254,14 @@ int main(int argc, char **argv)
 
     refreshCam();
 
+    n_verteces = (int *)malloc(sizeof(int) * scene.nModels);
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+
+    buffer_counter = 0;
+    buffers = (GLuint *)malloc(sizeof(GLuint) * scene.nModels);
+    glGenBuffers(scene.nModels, buffers);
+    fill_buffers(scene.groups);
     // enter GLUT's main cycle
     glutMainLoop();
 
