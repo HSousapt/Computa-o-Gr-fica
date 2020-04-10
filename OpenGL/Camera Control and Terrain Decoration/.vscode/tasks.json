@@ -1,0 +1,24 @@
+{
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "g++-8 build active file",
+      "command": "/usr/bin/g++-8",
+      "args": [
+        "-g",
+        "${file}",
+        "-o",
+        "${fileDirname}/class7",
+        "-lGL",
+        "-lGLU",
+        "-lglut",
+        "-lGLEW",
+        "-lIL"
+      ],
+      "options": {
+        "cwd": "/usr/bin"
+      }
+    }
+  ],
+  "version": "2.0.0"
+}

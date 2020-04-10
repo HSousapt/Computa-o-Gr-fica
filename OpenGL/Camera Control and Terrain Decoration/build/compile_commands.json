@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/eu/Universidade/3º ano/2º Semestre/CG/TP/class7/build",
+  "command": "/usr/bin/g++-8   -I/usr/include/IL  -g   -o CMakeFiles/class6.dir/main.cpp.o -c \"/home/eu/Universidade/3º ano/2º Semestre/CG/TP/class7/main.cpp\"",
+  "file": "/home/eu/Universidade/3º ano/2º Semestre/CG/TP/class7/main.cpp"
+}
+]
