@@ -1,5 +1,3 @@
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,18 +15,19 @@
 #include <GL/glut.h>
 #endif
 
-float camX = 00, camY = 70, camZ = 50;
-int startX, startY, tracking = 0;
+int frame = 0, timebase = 0;
+
 int polMode = 0;
 GLfloat spin = 0.0;
-
-int alpha = 0, beta = 45, r = 100;
-
-int frame = 0, timebase = 0;
 
 unsigned int imageHeight, imageWidth;
 GLuint verteces, vertecesCount;
 ILubyte *imageData;
+
+float alpha = 0;
+float camX = 0, camY = 0, camZ = 0;
+float lx = 0, lz = 1;
+int heye = 5;
 
 void changeSize(int w, int h)
 {
@@ -65,6 +64,7 @@ float hf(float x, float z)
 	float h = ((float)imageHeight - 1) / 2;
 	float w = ((float)imageWidth - 1) / 2;
 
+	//what??
 	float terrainZ = x + w;
 	float terrainX = z + h;
 
@@ -101,7 +101,7 @@ void Inner_Teapots(int tps)
 			glPushMatrix();
 			{
 				glColor3d(0.0, 0.0, 1);
-				glTranslatef(x, 0, z);
+				glTranslatef(x, hf(x, z), z);
 				glRotatef(-atan2(z, x) * to_degrees, 0, 1, 0);
 				glutSolidTeapot(2);
 			}
@@ -128,7 +128,7 @@ void Outter_Teapots(int tps)
 			glPushMatrix();
 			{
 				glColor3d(1.0, 0.0, 0.0);
-				glTranslatef(x, 0, z);
+				glTranslatef(x, hf(x, z), z);
 				glRotatef(atan2(x, z) * to_degrees, 0, 1, 0);
 				glutSolidTeapot(2);
 			}
@@ -208,20 +208,10 @@ void show_fps(void)
 	}
 }
 
-void renderScene(void)
+void draw_scene()
 {
+	glColor3d(1.0f, 1.0f, 1.0f);
 
-	float pos[4] = {-1.0, 1.0, 1.0, 0.0};
-
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glLoadIdentity();
-	gluLookAt(camX, camY, camZ,
-			  0.0, 0.0, 0.0,
-			  0.0f, 1.0f, 0.0f);
-
-	glColor3d(1.0f, 1.0f, 0.0f);
 	drawTerrain();
 
 	glPushMatrix();
@@ -236,18 +226,85 @@ void renderScene(void)
 
 	Outter_Teapots(16);
 
-	Draw_Trees(200);
+	Draw_Trees(250);
 
 	show_fps();
+}
+
+void displaytext(char const *string, GLint x, GLint y)
+{
+	glDisable(GL_TEXTURE_2D);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	gluOrtho2D(0.0, 800, 0.0, 800);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	glColor3f(1.0f, 0.25f, 0.0f);
+	glRasterPos2i(x, y);
+	void *font = GLUT_BITMAP_TIMES_ROMAN_24;
+	for (int i = 0; i < strlen(string); i++)
+	{
+		glutBitmapCharacter(font, string[i]);
+	}
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	glEnable(GL_TEXTURE_2D);
+}
+
+void renderScene(void)
+{
+
+	float pos[4] = {-1.0, 1.0, 1.0, 0.0};
+
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glLoadIdentity();
+
+	gluLookAt(camX, hf(camX, camZ) + heye, camZ,
+			  lx, hf(camX, camZ) + heye, lz,
+			  0.0f, 1.0f, 0.0f);
+
+	draw_scene();
+
+	displaytext("Use w, a, s, d to move", 10, 50);
+	displaytext("Use arrows to turn around", 10, 30);
+	displaytext("Press m to change drawing mode", 10, 10);
 
 	// End of frame
 	glutSwapBuffers();
 }
 
+void processSpecialKeys(int key, int xx, int yy)
+{
+	switch (key)
+	{
+	//Rotate camera to the right
+	case GLUT_KEY_RIGHT:
+		alpha -= 0.1;
+		break;
+	//Rotate camera to the left
+	case GLUT_KEY_LEFT:
+		alpha += 0.1;
+		break;
+	}
+	lx = camX + sin(alpha);
+	lz = camZ + cos(alpha);
+}
+
 void processKeys(unsigned char key, int xx, int yy)
 {
-	if (key == 'm')
+	float dx, dz, rx, rz;
+	float h = ((float)imageHeight - 1) / 2;
+	float w = ((float)imageWidth - 1) / 2;
+	switch (key)
 	{
+	//Change drawing mode
+	case 'm':
 		polMode = (polMode + 1) % 3;
 		if (polMode == 0)
 			glPolygonMode(GL_FRONT, GL_LINE);
@@ -256,79 +313,82 @@ void processKeys(unsigned char key, int xx, int yy)
 		if (polMode == 2)
 			glPolygonMode(GL_FRONT, GL_FILL);
 		glutPostRedisplay();
-	}
-}
+		break;
 
-void processMouseButtons(int button, int state, int xx, int yy)
-{
+	//Move Forward
+	case 'w':
 
-	if (state == GLUT_DOWN)
-	{
-		startX = xx;
-		startY = yy;
-		if (button == GLUT_LEFT_BUTTON)
-			tracking = 1;
-		else if (button == GLUT_RIGHT_BUTTON)
-			tracking = 2;
-		else
-			tracking = 0;
-	}
-	else if (state == GLUT_UP)
-	{
-		if (tracking == 1)
+		dx = lx - camX;
+		dz = lz - camZ;
+
+		//restrict camera movement to the map size
+		if ((camX + dx < h) && (camX + dx < w) && (camZ + dz < h) && (camZ + dz < w) &&
+			(-h < camX + dx) && (-w < camX + dx) && (-h < camZ + dz) && (-w < camZ + dz))
 		{
-			alpha += (xx - startX);
-			beta += (yy - startY);
+			camX += dx;
+			camZ += dz;
+			lx += dx;
+			lz += dz;
 		}
-		else if (tracking == 2)
+		break;
+
+	//Move Backward
+	case 's':
+
+		dx = lx - camX;
+		dz = lz - camZ;
+
+		//restrict camera movement to the map
+		if ((camX - dx < h) && (camX - dx < w) && (camZ - dz < h) && (camZ - dz < w) &&
+			(-h < camX - dx) && (-w < camX - dx) && (-h < camZ - dz) && (-w < camZ - dz))
 		{
-
-			r -= yy - startY;
-			if (r < 3)
-				r = 3.0;
+			camX -= dx;
+			camZ -= dz;
+			lx -= dx;
+			lz -= dz;
 		}
-		tracking = 0;
+		break;
+
+	//Move Left
+	case 'a':
+
+		dx = lx - camX;
+		dz = lz - camZ;
+
+		//cross produt (dx,dy,dz)x(0,1,0) = (dz,0,-dx)
+		rx = dz;
+		rz = -dx;
+
+		//restrict camera movement to the map
+		if ((camX + rx < h) && (camX + rx < w) && (camZ + rz < h) && (camZ + rz < w) &&
+			(-h < camX + rx) && (-w < camX + rx) && (-h < camZ - dz) && (-w < camZ - dz))
+		{
+			camX += rx;
+			camZ += rz;
+			lx += rx;
+			lz += rz;
+		}
+		break;
+
+	//Move Right
+	case 'd':
+		dx = lx - camX;
+		dz = lz - camZ;
+		//cross produt (dx,dy,dz)x(0,1,0) = (dz,0,-dx)
+		rx = dz;
+		rz = -dx;
+
+		//restrict camera movement to the map
+		if ((camX - dx < h) && (camX - dx < w) && (camZ - dz < h) && (camZ - dz < w) &&
+			(-h < camX - dx) && (-w < camX - dx) && (-h < camZ - dz) && (-w < camZ - dz))
+		{
+			camX -= rx;
+			camZ -= rz;
+			lx -= rx;
+			lz -= rz;
+		}
+		break;
 	}
-}
-
-void processMouseMotion(int xx, int yy)
-{
-
-	int deltaX, deltaY;
-	int alphaAux, betaAux;
-	int rAux;
-
-	if (!tracking)
-		return;
-
-	deltaX = xx - startX;
-	deltaY = yy - startY;
-
-	if (tracking == 1)
-	{
-
-		alphaAux = alpha + deltaX;
-		betaAux = beta + deltaY;
-
-		if (betaAux > 85.0)
-			betaAux = 85.0;
-		else if (betaAux < -85.0)
-			betaAux = -85.0;
-
-		rAux = r;
-	}
-	else if (tracking == 2)
-	{
-
-		alphaAux = alpha;
-		betaAux = beta;
-		rAux = r - deltaY;
-		if (rAux < 3)
-			rAux = 3;
-	}
-	camX = rAux * sin(alphaAux * 3.14 / 180.0) * cos(betaAux * 3.14 / 180.0);
-	camZ = rAux * cos(alphaAux * 3.14 / 180.0) * cos(betaAux * 3.14 / 180.0);
-	camY = rAux * sin(betaAux * 3.14 / 180.0);
 }
 
 void fill_vertex_array(int th, int tw)
@@ -402,16 +462,15 @@ int main(int argc, char **argv)
 	glutCreateWindow("CG@DI-UM");
 
 	// Required callback registry
+	glutReshapeFunc(changeSize);
 	glutDisplayFunc(renderScene);
 	glutIdleFunc(renderScene);
-	glutReshapeFunc(changeSize);
 	glutIdleFunc(spinDisplay);
 	ilInit();
 
 	// Callback registration for keyboard processing
 	glutKeyboardFunc(processKeys);
-	glutMouseFunc(processMouseButtons);
-	glutMotionFunc(processMouseMotion);
+	glutSpecialFunc(processSpecialKeys);
 
 	if (glewInit() != GLEW_OK)
 	{
