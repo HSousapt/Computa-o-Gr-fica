@@ -1,0 +1,3 @@
+/home/eu/Universidade/3º ano/2º Semestre/CG/Projeto/Fase3/generator/build/CMakeFiles/rebuild_cache.dir
+/home/eu/Universidade/3º ano/2º Semestre/CG/Projeto/Fase3/generator/build/CMakeFiles/gen.dir
+/home/eu/Universidade/3º ano/2º Semestre/CG/Projeto/Fase3/generator/build/CMakeFiles/edit_cache.dir

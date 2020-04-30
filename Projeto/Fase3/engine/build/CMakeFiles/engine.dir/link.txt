@@ -1,0 +1,1 @@
+/usr/bin/c++    -rdynamic CMakeFiles/engine.dir/main.cpp.o CMakeFiles/engine.dir/tinyxml/tinystr.cpp.o CMakeFiles/engine.dir/tinyxml/tinyxml.cpp.o CMakeFiles/engine.dir/tinyxml/tinyxmlerror.cpp.o CMakeFiles/engine.dir/tinyxml/tinyxmlparser.cpp.o CMakeFiles/engine.dir/engine_reader.cpp.o  -o engine -lGL -lGLU -lglut -lXmu -lXi -lGLEW 

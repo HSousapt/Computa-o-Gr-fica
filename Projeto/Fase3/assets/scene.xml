@@ -1,0 +1,19 @@
+<scene>
+	<group>
+	<scale Y=2 />
+	<rotate angle=45 axisX=0 axisY=1 axisZ=0 />
+	<models>
+		<model file="sphere.3d" />
+	</models>
+	<models>
+	<translate Y=-1 />
+		<model file="box.3d" />
+	</models>
+	<models>
+		<model file="sphere.3d" />
+	</models>
+	<models>
+		<model file="sphere.3d" />
+	</models>
+	</group>
+</scene>
