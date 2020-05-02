@@ -48,6 +48,16 @@ struct gt init_translate_anim(void)
     return ta;
 }
 
+struct gt init_rotate_anim(void)
+{
+    struct gt ra;
+    ra.p = point(0, 0, 0);
+    ra.gt_type = ROTATE_ANIM;
+    ra.rotate_time = 0;
+
+    return ra;
+}
+
 void buildRotMatrix(float *x, float *y, float *z, float *m)
 {
     m[0] = x[0];
@@ -154,6 +164,22 @@ void load_rotate(TiXmlElement *transf, struct group *g)
     g->gt.push_back(rotate);
 }
 
+void load_rotate_anim(TiXmlElement *transf, struct group *g)
+{
+    struct gt ra = init_rotate_anim();
+
+    ra.rotate_time = atof(transf->Attribute("time")) * 100;
+
+    if (transf->Attribute("axisX"))
+        ra.p.x = atof(transf->Attribute("axisX"));
+    if (transf->Attribute("axisY"))
+        ra.p.y = atof(transf->Attribute("axisY"));
+    if (transf->Attribute("axisZ"))
+        ra.p.z = atof(transf->Attribute("axisZ"));
+
+    g->gt.push_back(ra);
+}
+
 void load_translate_anim(TiXmlElement *transf, struct group *g)
 {
     struct gt ta = init_translate_anim();
@@ -251,7 +277,14 @@ struct group process_groups(TiXmlElement *group, struct scene *scene)
     TiXmlElement *rotate = group->FirstChildElement("rotate");
     if (rotate)
     {
-        load_rotate(rotate, &g);
+        if (trans->Attribute("time"))
+        {
+            load_rotate_anim(rotate, &g);
+        }
+        else
+        {
+            load_rotate(rotate, &g);
+        }
     }
 
     TiXmlElement *models = group->FirstChildElement("models");
@@ -360,7 +393,7 @@ void renderCarmullRomCurve(struct gt gt)
 {
     glBegin(GL_LINE_LOOP);
     float t2 = 0.0f;
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 1000; i++)
     {
         float P[3];
         float Pl[3];
@@ -390,6 +423,11 @@ void draw_gt(struct group g, int elapsed)
         {
             glRotatef(transf.r_angle, transf.p.x, transf.p.y, transf.p.z);
         }
+        if (transf.gt_type == ROTATE_ANIM)
+        {
+            float angle = (360.0 * elapsed) / transf.rotate_time;
+            glRotatef(angle, transf.p.x, transf.p.y, transf.p.z);
+        }
         if (transf.gt_type == TRANSLATE_ANIM)
         {
             float Y[3] = {0, 1, 0};
@@ -416,8 +454,6 @@ void draw_gt(struct group g, int elapsed)
             buildRotMatrix(Pl, Y, Z, m);
 
             glTranslatef(P[0], P[1], P[2]);
-            //printf("%f %f %f\n", P[0], P[1], P[2]);
-            // glMultMatrixf(m);
         }
     }
 }
