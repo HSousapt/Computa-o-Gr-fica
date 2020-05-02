@@ -5,9 +5,6 @@
 #include <iostream>
 #include <fstream>
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-
 #include "engine_reader.h"
 
 #include "tinyxml/tinyxml.h"
@@ -71,17 +68,16 @@ void draw_vbo()
     glDrawArrays(GL_TRIANGLES, 0, n_verteces[draw_counter++]);
 }
 
-void draw_scene(vector<struct group> groups)
+void draw_scene(vector<struct group> groups, int time)
 {
     for (int i = 0; i < groups.size(); i++)
     {
         struct group group = groups[i];
         glPushMatrix();
         {
-            draw_gt(group);
-            draw_scene(group.child);
+            draw_gt(group, time);
+            draw_scene(group.child, time);
             draw_vbo();
-            //draw_models(group);
         }
         glPopMatrix();
     }
@@ -93,6 +89,8 @@ void renderScene(void)
     char s[64];
     float fps;
     draw_counter = 0;
+    int t_counter = 0;
+
     // clear buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -103,11 +101,11 @@ void renderScene(void)
               0.0f, 1.0f, 0.0f);
 
     // put the geometric transformations here
+    time = glutGet(GLUT_ELAPSED_TIME);
 
-    draw_scene(scene.groups);
+    draw_scene(scene.groups, time);
 
     frame++;
-    time = glutGet(GLUT_ELAPSED_TIME);
     if (time - timebase > 1000)
     {
         fps = frame * 1000.0 / (time - timebase);
@@ -118,6 +116,7 @@ void renderScene(void)
     }
 
     // End of frame
+    glutPostRedisplay();
     glutSwapBuffers();
 }
 
