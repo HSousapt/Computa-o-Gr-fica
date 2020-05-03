@@ -57,24 +57,6 @@ struct Cone init_cone(float radius, float height, unsigned int slices, unsigned 
     return c;
 }
 
-void multMatrixVector(float *m, float *v, float *res)
-{
-    for (int j = 0; j < N; ++j)
-    {
-        res[j] = 0;
-
-        for (int k = 0; k < N; ++k)
-        {
-            res[j] += v[k] * m[j * N + k];
-        }
-    }
-}
-
-/*void getBezierPoint()
-{
-
-}*/
-
 void write_point(FILE *f, struct Point p)
 {
     fprintf(f,
@@ -383,37 +365,132 @@ void read_patch(std::string file, std ::vector<struct Point> *cps, std ::vector<
     infile.close();
 }
 
-void write_patch(FILE *out, std ::vector<struct Point> control_ps, std::vector<int> patch, float tess)
+struct Point scalar (float s, struct Point p)
 {
-    const struct Point P[4][4] = {
+    return point(p.x * s, p.y * s, p.z * s);
+}
+
+
+struct Point sum_points (struct Point p, struct Point q)
+{
+    return point(p.x + q.x, p.y + q.y, p.z + q.z);
+}
+
+static void mult_P_Mt (struct Point P[4][4], float M[4][4], struct Point r[4][4])
+{
+    for (unsigned i = 0; i < 4; i++)
+        for (unsigned j = 0; j < 4; j++)
         {
-            control_ps[patch[0]],
-            control_ps[patch[1]],
-            control_ps[patch[2]],
-            control_ps[patch[3]],
-        },
+            r[i][j] = point (0, 0, 0);
+            for(int k = 0; k < 4; k++)
+                r[i][j]  = sum_points(r[i][j], scalar(M[k][j], P[i][k]));
+        }
+}
+
+static void mult_M_P (float M[4][4], struct Point P[4][4], struct Point r[4][4])
+{
+    for (unsigned i = 0; i < 4; i++)
+        for (unsigned j = 0; j < 4; j++)
         {
-            control_ps[patch[4]],
-            control_ps[patch[5]],
-            control_ps[patch[6]],
-            control_ps[patch[7]],
-        },
-        {
-            control_ps[patch[8]],
-            control_ps[patch[9]],
-            control_ps[patch[10]],
-            control_ps[patch[11]],
-        },
-        {
-            control_ps[patch[12]],
-            control_ps[patch[13]],
-            control_ps[patch[14]],
-            control_ps[patch[15]],
-        },
+            r[i][j] = point (0, 0, 0);
+            for (unsigned k = 0; k < 4; k++)
+                r[i][j] = sum_points(r[i][j], scalar(M[i][k], P[k][j]));
+        }
+}
+
+
+static void mult_M_P_Mt (float M[4][4], struct Point P[4][4], struct Point res[4][4])
+{
+    struct Point aux[4][4];
+    mult_M_P(M, P, aux);
+    mult_P_Mt(aux, M, res);
+}
+
+struct Point get_bezier_point(struct Point MPM[4][4], float u, float v)
+{
+    float t[4] = { u * u * u, u * u, u, 1};
+    float tl[4] = { 3 * u * u, 2 * u, 1, 0};
+    float vv[4] = { v * v * v, v * v, v, 1};
+
+    struct Point tmp[4];
+
+   for(int i = 0; i < 4; i++)
+   {
+        struct Point aux0 = scalar(tl[0], MPM[i][0]);
+        struct Point aux1 = scalar(tl[1], MPM[i][1]);
+        struct Point aux2 = scalar(tl[2], MPM[i][2]);
+        struct Point aux3 = scalar(tl[3], MPM[i][3]);
+
+        tmp[i] = sum_points(sum_points(sum_points(aux0,aux1), aux2), aux3);
+   }
+
+    
+    for(int i = 0; i < 4; i++)
+   {
+        struct Point aux0 = scalar(t[0], MPM[i][0]);
+        struct Point aux1 = scalar(t[1], MPM[i][1]);
+        struct Point aux2 = scalar(t[2], MPM[i][2]);
+        struct Point aux3 = scalar(t[3], MPM[i][3]);
+
+        tmp[i] = sum_points(sum_points(sum_points(aux0,aux1), aux2), aux3);
+   }
+
+    for(int i = 0; i < 4; i++)
+   {
+        struct Point aux0 = scalar(t[0], MPM[i][0]);
+        struct Point aux1 = scalar(t[1], MPM[i][1]);
+        struct Point aux2 = scalar(t[2], MPM[i][2]);
+        struct Point aux3 = scalar(t[3], MPM[i][3]);
+
+        tmp[i] = sum_points(sum_points(sum_points(aux0,aux1), aux2), aux3);
+   }
+
+    struct Point aux0 = scalar(vv[0], tmp[0]);
+    struct Point aux1 = scalar(vv[1], tmp[1]);
+    struct Point aux2 = scalar(vv[2], tmp[2]);
+    struct Point aux3 = scalar(vv[3], tmp[3]);
+
+    return sum_points(sum_points(sum_points(aux0,aux1), aux2), aux3);
+}
+
+void gen_single_patch(FILE *out, std::vector<int> patch, std ::vector<struct Point> control_ps, float tess)
+{
+    //bezier matrix
+    float M[4][4] = 
+        {{ -1,  3, -3, 1, },
+        {  3, -6,  3, 0, },
+        { -3,  3,  0, 0, },
+        {  1,  0,  0, 0, }};
+
+    //get the control points for this patch
+    struct Point P[4][4] = {
+        { control_ps[patch[0]],  control_ps[patch[1]],  control_ps[patch[2]],  control_ps[patch[3]],  },
+        { control_ps[patch[4]],  control_ps[patch[5]],  control_ps[patch[6]],  control_ps[patch[7]],  },
+        { control_ps[patch[8]],  control_ps[patch[9]],  control_ps[patch[10]], control_ps[patch[11]], },
+        { control_ps[patch[12]], control_ps[patch[13]], control_ps[patch[14]], control_ps[patch[15]], },
     };
 
-    struct Point p = point(0, 0, 0);
-    struct Point MPM[4][4];
+    struct Point M_P_Mt[4][4];
+    mult_M_P_Mt(M, P, M_P_Mt);
+
+    for (unsigned i = 1; i <= 4 * tess; i++) 
+    {
+        float u  = ((float) i)     / (4.0 * tess);
+        float ul = ((float) i - 1) / (4.0 * tess);
+
+        for (unsigned j = 1; j <= 4 * tess; j++) 
+        {
+            float v  = ((float) j)     / (4.0 * tess);
+            float vl= ((float) j - 1) / (4.0 * tess);
+
+            struct Point P1 = get_bezier_point(M_P_Mt, u,  vl);
+            struct Point P2 = get_bezier_point(M_P_Mt, u,  v);
+            struct Point P3 = get_bezier_point(M_P_Mt, ul, vl);
+            struct Point P4 = get_bezier_point(M_P_Mt, ul, v);
+
+            write_plane(out, init_plane(P1, P2, P3, P4));
+        }
+    }
 }
 
 void write_bezier(FILE *out, std::string in, float tess)
@@ -422,5 +499,7 @@ void write_bezier(FILE *out, std::string in, float tess)
     std ::vector<struct Point> control_ps;
     read_patch(in, &control_ps, &patches);
     for (std::vector<int> patch : patches)
-        write_patch(out, control_ps, patch, tess);
+    {
+        gen_single_patch(out, patch, control_ps, tess);
+    }
 }

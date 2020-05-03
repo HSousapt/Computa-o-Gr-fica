@@ -188,7 +188,7 @@ int prepare_bezier_data(int argc, char **argv)
         string outfile = dir + argv[1];
         string in = dir + argv[4];
         FILE *out = fopen(outfile.c_str(), "w");
-        int tess = 0;
+        float tess = 0;
         sscanf(argv[3], "%f", &tess);
         write_bezier(out, in, tess);
         r = 0;
