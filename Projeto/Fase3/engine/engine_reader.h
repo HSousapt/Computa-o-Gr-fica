@@ -54,6 +54,7 @@ struct group
     vector<struct gt> gt;
     vector<vector<struct Point>> models;
     vector<struct group> child;
+    vector<struct Point> colors;
 };
 
 //Struct that represents a scene as a vector of groups and and int that tells us how many models the scene has
@@ -61,8 +62,6 @@ struct scene
 {
     vector<struct group> groups;
     int nModels;
-    int nCatmulls;
-    int nRots;
 };
 
 //Fuction that draws the geometric transformations
@@ -73,3 +72,6 @@ void load_scene(struct scene *, TiXmlElement *);
 
 //Draws the models without VBO's
 void draw_models(struct group);
+
+//Draws the color
+void draw_color(struct Point);

@@ -1,21 +1,12 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <vector>
-#include <string>
-#include <iostream>
-#include <fstream>
-
 #include "engine_reader.h"
 
-#include "tinyxml/tinyxml.h"
-#include "tinyxml/tinystr.h"
 
 using namespace std;
 
 int polMode = 0;
 
 float px, py, pz;
-float radius = 100;
+float radius = 300;
 float lx = 0.0, ly = 0.0, lz = 0.0;
 float alpha = 45.0, beta = 45.0;
 int frame = 0, timebase = 0;
@@ -72,24 +63,46 @@ void draw_scene(vector<struct group> groups, int time)
 {
     for (int i = 0; i < groups.size(); i++)
     {
+        int k = 0;
         struct group group = groups[i];
         glPushMatrix();
         {
+            if(!group.colors.empty())
+            {
+                draw_color(group.colors[k++]);
+            }
+            else
+            {
+                glColor3f(1.0, 1.0, 1.0);
+            }
             draw_gt(group, time);
-            draw_scene(group.child, time);
             draw_vbo();
+            draw_scene(group.child, time);
         }
         glPopMatrix();
     }
 }
 
+void show_fps(int time)
+{
+	float fps;
+	char s[64];
+
+	frame++;
+	if (time - timebase > 1000)
+	{
+		fps = frame * 1000.0 / (time - timebase);
+		timebase = time;
+		frame = 0;
+		sprintf(s, "FPS: %f7.3", fps);
+		glutSetWindowTitle(s);
+	}
+}
+
 void renderScene(void)
 {
     int time;
-    char s[64];
-    float fps;
     draw_counter = 0;
-    int t_counter = 0;
 
     // clear buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -105,15 +118,7 @@ void renderScene(void)
 
     draw_scene(scene.groups, time);
 
-    frame++;
-    if (time - timebase > 1000)
-    {
-        fps = frame * 1000.0 / (time - timebase);
-        timebase = time;
-        frame = 0;
-        sprintf(s, "FPS: %6.2f", fps);
-        glutSetWindowTitle(s);
-    }
+    show_fps(time);
 
     // End of frame
     glutPostRedisplay();
@@ -172,10 +177,10 @@ void processKeys(unsigned char key, int xx, int yy)
     switch (key)
     {
     case 'w':
-        radius -= 1;
+        radius -= 5;
         break;
     case 's':
-        radius += 1;
+        radius += 5;
         break;
     }
 
@@ -193,7 +198,6 @@ void fill_buffers(vector<struct group> groups)
 
         for (int i = 0; i < models.size(); i++)
         {
-
             n_verteces[buffer_counter] += models[i].size();
 
             glBindBuffer(GL_ARRAY_BUFFER, buffers[buffer_counter++]);
@@ -256,8 +260,8 @@ int main(int argc, char **argv)
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
     glutInitWindowPosition(100, 100);
-    glutInitWindowSize(800, 800);
-    glutCreateWindow("Fase_2");
+    glutInitWindowSize(1200, 800);
+    glutCreateWindow("Fase_3");
 
     // Required callback registry
     glutDisplayFunc(renderScene);

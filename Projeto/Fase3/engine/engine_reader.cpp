@@ -188,20 +188,42 @@ void load_translate_anim(TiXmlElement *transf, struct group *g)
 
     if (ta.translate_time > 0)
     {
-        for (TiXmlElement *point = transf->FirstChildElement("point"); point; point = point->NextSiblingElement())
+        for (TiXmlElement *points = transf->FirstChildElement("point"); points; points = points->NextSiblingElement())
         {
-            Point p;
-            p.x = atof(point->Attribute("X"));
-            p.y = atof(point->Attribute("Y"));
-            p.z = atof(point->Attribute("Z"));
+            Point p = point(0, 0, 0);
+            if (points->Attribute("X"))
+                p.x = atof(points->Attribute("X"));
+            if (points->Attribute("Y"))
+                p.y = atof(points->Attribute("Y"));
+            if (points->Attribute("Z"))
+                p.z = atof(points->Attribute("Z"));
+
             ta.control_points.push_back(p);
         }
     }
     g->gt.push_back(ta);
 }
+
+void load_color(TiXmlElement *color, struct group *g)
+{
+    struct Point col = point(0, 0, 0);
+
+    if (color->Attribute("R"))
+        col.x = atof(color->Attribute("R"));
+    if (color->Attribute("G"))
+        col.y = atof(color->Attribute("G"));
+    if (color->Attribute("B"))
+        col.z = atof(color->Attribute("B"));
+    
+    g->colors.push_back(col);
+}
 //Function that loads the models data from the .xml and subsequently the .3d file
 void load_models(TiXmlElement *models, struct group *g)
 {
+    if(TiXmlElement *color = models->FirstChildElement("color"))
+    {
+        load_color(color, g);
+    }
     for (TiXmlElement *model = models->FirstChildElement("model"); model; model = model->NextSiblingElement())
     {
         const char *file = model->Attribute("file");
@@ -277,7 +299,7 @@ struct group process_groups(TiXmlElement *group, struct scene *scene)
     TiXmlElement *rotate = group->FirstChildElement("rotate");
     if (rotate)
     {
-        if (trans->Attribute("time"))
+        if (rotate->Attribute("time"))
         {
             load_rotate_anim(rotate, &g);
         }
@@ -291,6 +313,7 @@ struct group process_groups(TiXmlElement *group, struct scene *scene)
     if (models)
     {
         scene->nModels++;
+    
         load_models(models, &g);
     }
     return g;
@@ -392,15 +415,15 @@ void getGlobalCatmullRomPoint(float gt, float *pos, float *deriv, vector<Point> 
 void renderCarmullRomCurve(struct gt gt)
 {
     glBegin(GL_LINE_LOOP);
-    float t2 = 0.0f;
+    float t = 0.0f;
     for (int i = 0; i < 1000; i++)
     {
         float P[3];
         float Pl[3];
 
-        getGlobalCatmullRomPoint(t2, (float *)P, (float *)Pl, gt.control_points);
+        getGlobalCatmullRomPoint(t, (float *)P, (float *)Pl, gt.control_points);
         glVertex3f(P[0], P[1], P[2]);
-        t2 += 0.001f;
+        t += 0.001f;
     }
     glEnd();
 }
@@ -454,6 +477,13 @@ void draw_gt(struct group g, int elapsed)
             buildRotMatrix(Pl, Y, Z, m);
 
             glTranslatef(P[0], P[1], P[2]);
+
+            glMultMatrixf(m);
         }
     }
+}
+
+void draw_color(struct Point color)
+{
+    glColor3f(color.x, color.y, color.z);
 }

@@ -376,6 +376,15 @@ struct Point sum_points (struct Point p, struct Point q)
     return point(p.x + q.x, p.y + q.y, p.z + q.z);
 }
 
+#define N 4 
+void transpose(float A[][N], float B[][N]) 
+{ 
+    int i, j; 
+    for (i = 0; i < N; i++) 
+        for (j = 0; j < N; j++) 
+            B[i][j] = A[j][i]; 
+} 
+
 static void mult_P_Mt (struct Point P[4][4], float M[4][4], struct Point r[4][4])
 {
     for (unsigned i = 0; i < 4; i++)
@@ -399,11 +408,11 @@ static void mult_M_P (float M[4][4], struct Point P[4][4], struct Point r[4][4])
 }
 
 
-static void mult_M_P_Mt (float M[4][4], struct Point P[4][4], struct Point res[4][4])
+static void mult_M_P_Mt (float M[4][4], float Mt[4][4], struct Point P[4][4], struct Point res[4][4])
 {
     struct Point aux[4][4];
     mult_M_P(M, P, aux);
-    mult_P_Mt(aux, M, res);
+    mult_P_Mt(aux, Mt, res);
 }
 
 struct Point get_bezier_point(struct Point MPM[4][4], float u, float v)
@@ -462,6 +471,10 @@ void gen_single_patch(FILE *out, std::vector<int> patch, std ::vector<struct Poi
         { -3,  3,  0, 0, },
         {  1,  0,  0, 0, }};
 
+    float Mt[4][4];
+
+    transpose(M, Mt);
+
     //get the control points for this patch
     struct Point P[4][4] = {
         { control_ps[patch[0]],  control_ps[patch[1]],  control_ps[patch[2]],  control_ps[patch[3]],  },
@@ -471,7 +484,7 @@ void gen_single_patch(FILE *out, std::vector<int> patch, std ::vector<struct Poi
     };
 
     struct Point M_P_Mt[4][4];
-    mult_M_P_Mt(M, P, M_P_Mt);
+    mult_M_P_Mt(M, Mt, P, M_P_Mt);
 
     for (unsigned i = 1; i <= 4 * tess; i++) 
     {
