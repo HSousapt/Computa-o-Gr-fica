@@ -1,1 +1,1 @@
-Computação Gráfica
+Graphics Programming
