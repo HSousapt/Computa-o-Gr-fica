@@ -1,0 +1,2 @@
+*.3d linguist-detectable=false
+*.cpp linguist-detectable=true
