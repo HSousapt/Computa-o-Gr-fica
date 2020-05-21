@@ -1,0 +1,66 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/eu/Universidade/3º ano/2º Semestre/CG/Projeto/Fase4/engine/engine_reader.cpp
+engine_reader.h
+/home/eu/Universidade/3º ano/2º Semestre/CG/Projeto/Fase4/engine/engine_reader.h
+
+/home/eu/Universidade/3º ano/2º Semestre/CG/Projeto/Fase4/engine/engine_reader.h
+stdio.h
+-
+stdlib.h
+-
+vector
+-
+string
+-
+iostream
+-
+fstream
+-
+tinyxml/tinyxml.h
+/home/eu/Universidade/3º ano/2º Semestre/CG/Projeto/Fase4/engine/tinyxml/tinyxml.h
+tinyxml/tinystr.h
+/home/eu/Universidade/3º ano/2º Semestre/CG/Projeto/Fase4/engine/tinyxml/tinystr.h
+math.h
+-
+GLUT/glut.h
+-
+GL/glew.h
+-
+GL/glut.h
+-
+IL/il.h
+-
+
+/home/eu/Universidade/3º ano/2º Semestre/CG/Projeto/Fase4/engine/tinyxml/tinystr.h
+assert.h
+-
+string.h
+-
+
+/home/eu/Universidade/3º ano/2º Semestre/CG/Projeto/Fase4/engine/tinyxml/tinyxml.h
+ctype.h
+-
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+assert.h
+-
+string
+-
+iostream
+-
+sstream
+-
+tinystr.h
+/home/eu/Universidade/3º ano/2º Semestre/CG/Projeto/Fase4/engine/tinyxml/tinystr.h
+

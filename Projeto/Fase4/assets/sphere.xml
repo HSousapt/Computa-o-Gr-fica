@@ -1,0 +1,14 @@
+<scene>
+	<lighting>
+		<lights>
+			<light type="DIRECTIONAL" posX="1" posY="1" posZ="1" />
+			<light type="AMBIENT" R="1" G="0" B="0" />
+			<light type="DIFFUSE" R="1" G="0.0" B="0.0" />
+ 		</lights>
+	</lighting>
+	<group>
+		<models>
+			<model file="sphere.3d" />
+		</models>
+	</group>
+</scene>

@@ -1,0 +1,17 @@
+<scene>
+	<lights>
+		<light>
+			<type="DIRECTIONAL" posX="1" posX="1" posX="1" />
+			<type="AMBIENT" B="1" />
+			<type="DIFFUSE" R="0.8" G="0.8" B="0.8"/>
+			<type="SPECULAR" R="1.0" G="1.0" B="1.0"/>
+ 		</light>
+	</lights>
+	<group>
+		<translate Z="10" />
+		<scale X="2" Y="2" Z="2" />
+		<models>
+			<model file="box.3d" />
+		</models>
+	</group>
+</scene>
