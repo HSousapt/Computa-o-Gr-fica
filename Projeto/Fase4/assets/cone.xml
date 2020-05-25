@@ -9,7 +9,7 @@
 	</lighting>
 	<group>
 		<models>
-			<model file="cone.3d" />
+			<model file="cone.3d" texture="earth.jpg" />
 		</models>
 	</group>
 </scene>

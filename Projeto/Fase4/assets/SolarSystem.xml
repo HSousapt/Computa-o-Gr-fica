@@ -3,9 +3,10 @@
 		<rotate time=100 axisX=0 axisY=1 axisZ=0 />
 		<scale X="20" Y="20" Z="20" />
 		<models>
-					<color R=1 G=1 B=0 />
-            		<model file="sphere.3d" /> <!-- SUN -->
-        </models>
+			<model>
+            		<files file="sphere.3d" texture="sun.jpg"/> <!-- SUN -->
+			</model>
+		</models>
 	</group>
 	<group>
 		<scale X="0.23" Y="0.23" Z="0.23" />
@@ -21,9 +22,10 @@
 		</translate>
 		<rotate time=6 axisX=0 axisY=1 axisZ=0 />
 		<models>
-					<color R=1 G=0 B=0 />
-            		<model file="sphere.3d" /> <!-- MERCURY -->
-        	</models>
+			<model>
+            		<files file="sphere.3d" texture="mercury.jpg"/> <!-- MERCURY -->
+			</model>
+		</models>
 	</group>
 	<group>
 		<scale X="0.6" Y="0.6" Z="0.6" />
@@ -38,12 +40,13 @@
 			<point X=63.63 Y=0 Z=-63.63 />				
 		</translate>
 		<models>
-					<color R=0 G=1 B=0 />
-            		<model file="sphere.3d" /> <!-- VENUS -->
-        </models>
+			<model>
+            		<files file="sphere.3d" texture="venus.jpg"/> <!-- VENUS -->
+			</model>
+		</models>
 	</group>
 	<group>
-		<scale X="0.6" Y="0.6" Z="0.6" />
+		<scale X="4" Y="4" Z="4" />
 		<translate time= 4>
 			<point X=0 Y=0 Z=-100 />
 			<point X=-70.7 Y=0 Z=-70.7 />
@@ -55,9 +58,10 @@
 			<point X=70.7 Y=0 Z=-70.7 />				
 		</translate>
 		<models>
-					<color R=0 G=0 B=1 />
-            		<model file="sphere.3d" /> <!-- EARTH -->
-        	</models>
+			<model>
+            		<files file="sphere.3d" texture="earth.jpg"/> <!-- EARTH -->
+			</model>
+		</models>
 		<group>
 
 		<scale X="0.4" Y="0.4" Z="0.4" />
@@ -72,8 +76,10 @@
 			<point X=3.535 Y=0 Z=-3.535 />				
 		</translate>
 		<models>
-            		<model file="sphere.3d" /> <!-- MOON -->
-        	</models>
+			<model>
+            		<files file="sphere.3d" texture="moon.jpg"/> <!-- MOON -->
+			</model>
+		</models>
 		</group>
 	</group>
 	<group>
@@ -90,9 +96,10 @@
 		</translate>
 		<scale X="0.3" Y="0.3" Z="0.3" />
 		<models>
-			<color R=1 G=0.5 B=0 />
-            		<model file="sphere.3d" /> <!-- MARS -->
-        	</models>
+			<model>
+            		<files file="sphere.3d" texture="mars.jpg"/> <!-- MARS -->
+			</model>
+		</models>
 	</group>
 	<group>
 
@@ -108,9 +115,10 @@
 		</translate>
 		<scale X="6.72" Y="6.72" Z="6.72" />
 		<models>
-			<color R=0.7 G=0.5 B=0 />
-            		<model file="sphere.3d" /> <!-- JUPYTER -->
-        	</models>
+			<model>
+            		<files file="sphere.3d" texture="jupiter.jpg"/> <!-- JUPYTER -->
+			</model>
+		</models>
 	</group>
 	<group>
 
@@ -126,9 +134,10 @@
 		</translate>
 		<scale X="5.67" Y="5.67" Z="5.67" />
 		<models>
-			<color R=0.3 G=0.4 B=0 />
-            		<model file="sphere.3d" /> <!-- SATURN -->
-        	</models>
+			<model>
+            		<files file="sphere.3d" texture="saturn.jpg"/> <!-- SATURN -->
+			</model>
+		</models>
 	</group>
 	<group>
 
@@ -144,9 +153,10 @@
 		</translate>
 		<scale X="2.4" Y="2.4" Z="2.4" />
 		<models>
-			<color R=0 G=0.5 B=0.7 />
-            		<model file="sphere.3d" /> <!-- URANUS -->
-        	</models>
+			<model>
+            		<files file="sphere.3d" texture="uranus.jpg"/> <!-- URANUS -->
+			</model>
+		</models>
 	</group>
 	<group>
 		<translate time= 659.6>
@@ -161,9 +171,10 @@
 		</translate>
 		<scale X="2.33" Y="2.33" Z="2.33" />
 		<models>
-			<color R=0 G=0.5 B=1 />
-            		<model file="sphere.3d" /> <!-- NEPTUNE -->
-        	</models>
+			<model>
+            		<files file="sphere.3d" texture="neptune.jpg"/> <!-- NEPTUNE -->
+			</model>
+		</models>
 	</group>
 	<group>
 		<translate time= 992>
@@ -178,8 +189,10 @@
 		</translate>
 		<scale X="0.1" Y="0.1" Z="0.1" />
 		<models>
-            		<model file="sphere.3d" /> <!-- PLUTO -->
-        </models>
+			<model>
+            		<files file="sphere.3d" /> <!-- PLUTO -->
+			</model>
+		</models>
 	</group>
     <group>
         <translate time=30>
@@ -188,8 +201,10 @@
             <point X=0 Y=80 Z=150/>
             <point X=80 Y=100 Z=112/>
         </translate>
-        <models>
-           	 <model file="teapot.3d" /> <!-- COMET -->
-        </models>
+		<models>
+			<model>
+           			 <files file="teapot.3d" /> <!-- COMET -->
+			</model>
+		</models>
     </group>
 </scene>

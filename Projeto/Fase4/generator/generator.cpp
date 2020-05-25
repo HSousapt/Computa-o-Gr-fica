@@ -60,22 +60,22 @@ struct Cone init_cone(float radius, float height, unsigned int slices, unsigned 
 struct Point normalize(struct Point P)
 {
     struct Point N;
-    float norm = sqrt(P.x*P.x + P.y*P.y + P.z*P.z);
-    N.x = P.x/norm;
-    N.y = P.y/norm;
-    N.z = P.z/norm;
+    float norm = sqrt((P.x * P.x) + (P.y * P.y) + (P.z * P.z));
+    N.x = P.x / norm;
+    N.y = P.y / norm;
+    N.z = P.z / norm;
     return N;
 }
 
 struct Point normal(struct Triangle t)
 {
-    struct Point N = point(0,0,0);
+    struct Point N = point(0, 0, 0);
     struct Point U = point(t.P2.x - t.P1.x, t.P2.y - t.P1.y, t.P2.z - t.P1.z);
-    struct Point V = point(t.P3.x - t.P1.x, t.P3.y - t.P1.y, t.P3.z - t.P1.z);  
+    struct Point V = point(t.P3.x - t.P1.x, t.P3.y - t.P1.y, t.P3.z - t.P1.z);
 
-    N.x = (U.y*V.z) - (U.z*V.y);
-    N.y = (U.z*V.x) - (U.x*V.z);    
-    N.z = (U.x*V.y) - (U.y*V.x);
+    N.x = (U.y * V.z) - (U.z * V.y);
+    N.y = (U.z * V.x) - (U.x * V.z);
+    N.z = (U.x * V.y) - (U.y * V.x);
 
     return normalize(N);
 }
@@ -86,32 +86,44 @@ void write_point(FILE *f, struct Point p)
             "%a %a %a\n", p.x, p.y, p.z);
 }
 
-void write_triangle(FILE *f, struct Triangle t, struct Triangle nt)
+void write_triangle(FILE *f, struct Triangle t, struct Triangle nt, struct Triangle text)
 {
     write_point(f, t.P1);
     write_point(f, nt.P1);
+    write_point(f, text.P1);
+
     write_point(f, t.P2);
     write_point(f, nt.P2);
+    write_point(f, text.P2);
+
     write_point(f, t.P3);
     write_point(f, nt.P3);
+    write_point(f, text.P3);
 }
 
-void write_plane(FILE *f, struct Plane pl, struct Plane normals)
+void write_plane(FILE *f, struct Plane pl, struct Plane normals, struct Plane textures)
 {
-    struct Triangle t1, t2, nt1, nt2;
-    t1 = init_triangle(pl.P1, pl.P2, pl.P3);
-    t2 = init_triangle(pl.P3, pl.P2, pl.P4);
+    struct Triangle tri1, tri2, nt1, nt2, text1, text2;
+
+    tri1 = init_triangle(pl.P1, pl.P2, pl.P3);
+    tri2 = init_triangle(pl.P3, pl.P2, pl.P4);
+
     nt1 = init_triangle(normals.P1, normals.P2, normals.P3);
     nt2 = init_triangle(normals.P3, normals.P2, normals.P4);
-    write_triangle(f, t1, nt1);
-    write_triangle(f, t2, nt2);
+
+    text1 = init_triangle(textures.P1, textures.P2, textures.P3);
+    text2 = init_triangle(textures.P3, textures.P2, textures.P4);
+
+    write_triangle(f, tri1, nt1, text1);
+    write_triangle(f, tri2, nt2, text2);
 }
 
 void write_plane_data(FILE *f, struct Plane pl)
 {
     struct Point N = point(0.0, 1.0, 0.0);
     struct Plane nps = init_plane(N, N, N, N);
-    write_plane(f, pl, nps);
+
+    write_plane(f, pl, nps, nps);
 }
 
 void write_box(FILE *f, struct Box cube)
@@ -139,7 +151,6 @@ void write_box(FILE *f, struct Box cube)
                 {
                     float coordz = -z + (k * deltaZ);
                     float coordz1 = -z + ((k + 1) * deltaZ);
-                    struct Point N = point(-1.0, 0.0, 0.0);
 
                     Point P1, P2, P3, P4;
                     P1 = point(coordx, coordy, coordz);
@@ -150,8 +161,8 @@ void write_box(FILE *f, struct Box cube)
                     //BACK-LEFT FACES
                     struct Point N1 = normal(init_triangle(P1, P2, P3));
                     struct Point N2 = normal(init_triangle(P3, P2, P4));
-                    write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1));
-                    write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2));
+                    write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1), init_triangle(N1, N1, N1));
+                    write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2), init_triangle(N1, N1, N1));
                 }
             }
         }
@@ -172,17 +183,16 @@ void write_box(FILE *f, struct Box cube)
 
                         Point P1, P2, P3, P4;
                         P1 = point(coordx, coordy, coordz);
-                        P2 = point(coordx, coordy1, coordz);                        
+                        P2 = point(coordx, coordy1, coordz);
                         P3 = point(coordx, coordy, coordz1);
                         P4 = point(coordx, coordy1, coordz1);
-
 
                         //FRONT-RIGHT FACES
 
                         struct Point N1 = normal(init_triangle(P1, P2, P3));
                         struct Point N2 = normal(init_triangle(P3, P2, P4));
-                        write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1));
-                        write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2));
+                        write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1), init_triangle(N1, N1, N1));
+                        write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2), init_triangle(N1, N1, N1));
                     }
                 }
             }
@@ -208,11 +218,10 @@ void write_box(FILE *f, struct Box cube)
                 P3 = point(coordx, coordy1, -z);
                 P4 = point(coordx1, coordy1, -z);
 
-
-                    struct Point N1 = normal(init_triangle(P1, P2, P3));
-                    struct Point N2 = normal(init_triangle(P3, P2, P4));
-                    write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1));
-                    write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2));                  
+                struct Point N1 = normal(init_triangle(P1, P2, P3));
+                struct Point N2 = normal(init_triangle(P3, P2, P4));
+                write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1), init_triangle(N1, N1, N1));
+                write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2), init_triangle(N1, N1, N1));
 
                 //FRONT LEFT FACE
 
@@ -223,21 +232,21 @@ void write_box(FILE *f, struct Box cube)
 
                 N1 = normal(init_triangle(P1, P2, P3));
                 N2 = normal(init_triangle(P3, P2, P4));
-                write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1));
-                write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2));
+                write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1), init_triangle(N1, N1, N1));
+                write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2), init_triangle(N1, N1, N1));
 
                 //TOP AND BOTTOM FACES
                 //BOTTOM FACE
 
                 P1 = point(coordx, -y, coordz);
-                P2 = point(coordx, -y, coordz1);                
+                P2 = point(coordx, -y, coordz1);
                 P3 = point(coordx1, -y, coordz);
                 P4 = point(coordx1, -y, coordz1);
 
                 N1 = normal(init_triangle(P1, P2, P3));
                 N2 = normal(init_triangle(P3, P2, P4));
-                write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1));
-                write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2));
+                write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1), init_triangle(N1, N1, N1));
+                write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2), init_triangle(N1, N1, N1));
 
                 //TOP FACE
 
@@ -248,8 +257,8 @@ void write_box(FILE *f, struct Box cube)
 
                 N1 = normal(init_triangle(P1, P2, P3));
                 N2 = normal(init_triangle(P3, P2, P4));
-                write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1));
-                write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2));
+                write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1), init_triangle(N1, N1, N1));
+                write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2), init_triangle(N1, N1, N1));
             }
         }
     }
@@ -263,9 +272,11 @@ void write_sphere(FILE *f, struct Sphere sph)
 
     std::vector<struct Point> normals;
     std::vector<struct Point> verts;
+    std::vector<struct Point> text;
 
     verts.reserve((slices + 1) * (stacks + 1));
     normals.reserve((slices + 1) * (stacks + 1));
+    text.reserve((slices + 1) * (stacks + 1));
 
     for (int i = 0; i <= stacks; i++)
     {
@@ -277,14 +288,15 @@ void write_sphere(FILE *f, struct Sphere sph)
 
             float nx = cosf(slice_step) * sinf(stack_step);
             float ny = cosf(stack_step);
-            float nz = sinf(slice_step) * sinf(stack_step); 
+            float nz = sinf(slice_step) * sinf(stack_step);
 
             float x = radius * nx;
             float y = radius * ny;
-            float z = radius * nz;         
+            float z = radius * nz;
 
             verts.push_back(point(x, y, z));
-            //normals.push_back(point(nx, ny, nz));
+            normals.push_back(point(nx, ny, nz));
+            text.push_back(point(((float)j / (float)slices), ((float)i / (float)stacks), 0));
         }
     }
     int n = slices * stacks + slices;
@@ -295,18 +307,21 @@ void write_sphere(FILE *f, struct Sphere sph)
         struct Point p3 = verts[i + slices + 1];
         struct Point p4 = verts[i + 1];
 
-       struct Point n1 = normals[i + slices];
+        struct Point n1 = normals[i + slices];
         struct Point n2 = normals[i];
         struct Point n3 = normals[i + slices + 1];
-        struct Point n4 = normals[i + 1];        
+        struct Point n4 = normals[i + 1];
 
-        //write_plane(f, init_plane(p1, p2, p3, p4), init_plane(n1,n2,n3,n4));
-        struct Point N1 = normal(init_triangle(p1, p2, p3));
+        struct Point t1 = text[i + slices];
+        struct Point t2 = text[i];
+        struct Point t3 = text[i + slices + 1];
+        struct Point t4 = text[i + 1];
+
+        write_plane(f, init_plane(p1, p2, p3, p4), init_plane(n1, n2, n3, n4), init_plane(t1, t2, t3, t4));
+        /*struct Point N1 = normal(init_triangle(p1, p2, p3));
         struct Point N2 = normal(init_triangle(p3, p2, p4));
         write_triangle(f, init_triangle(p1, p2, p3), init_triangle(N1, N1, N1));
-        write_triangle(f, init_triangle(p3, p2, p4), init_triangle(N2, N2, N2));
-
-        
+        write_triangle(f, init_triangle(p3, p2, p4), init_triangle(N2, N2, N2));*/
     }
 }
 
@@ -340,7 +355,7 @@ void write_cone(FILE *f, struct Cone c)
             struct Point P3 = point(r * xi1, h, r * zi1);
             struct Point N = normal(init_triangle(T_origin, P2, P3));
 
-            write_triangle(f, init_triangle(T_origin, P2, P3),  init_triangle(N, N, N));
+            write_triangle(f, init_triangle(T_origin, P2, P3), init_triangle(N, N, N), init_triangle(N, N, N));
         }
 
         /* draw base */
@@ -349,8 +364,10 @@ void write_cone(FILE *f, struct Cone c)
             struct Point P2 = point(0, 0, 0);
             struct Point P3 = point(radius * xi1, 0, radius * zi1);
             struct Point N = normal(init_triangle(P1, P2, P3));
+            struct Point T1 = point(i / slices, 0, 0);
+            struct Point T2 = point((i + 1) / slices, 1, 0);
 
-            write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N, N, N));
+            write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N, N, N), init_triangle(N, N, N));
         }
 
         /* draw side */
@@ -371,8 +388,10 @@ void write_cone(FILE *f, struct Cone c)
 
             struct Point N1 = normal(init_triangle(P1, P2, P3));
             struct Point N2 = normal(init_triangle(P3, P2, P4));
-            write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1));
-            write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2));
+
+            struct Point T1 = point((stacks - j1) / stacks, (stacks - I) / stacks, 0);
+            write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1), init_triangle(N1, N1, N1));
+            write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2), init_triangle(N1, N1, N1));
         }
     }
 }
@@ -444,50 +463,48 @@ void read_patch(std::string file, std ::vector<struct Point> *cps, std ::vector<
     infile.close();
 }
 
-struct Point scalar (float s, struct Point p)
+struct Point scalar(float s, struct Point p)
 {
     return point(p.x * s, p.y * s, p.z * s);
 }
 
-
-struct Point sum_points (struct Point p, struct Point q)
+struct Point sum_points(struct Point p, struct Point q)
 {
     return point(p.x + q.x, p.y + q.y, p.z + q.z);
 }
 
-#define N 4 
-void transpose(float A[][N], float B[][N]) 
-{ 
-    int i, j; 
-    for (i = 0; i < N; i++) 
-        for (j = 0; j < N; j++) 
-            B[i][j] = A[j][i]; 
-} 
+#define N 4
+void transpose(float A[][N], float B[][N])
+{
+    int i, j;
+    for (i = 0; i < N; i++)
+        for (j = 0; j < N; j++)
+            B[i][j] = A[j][i];
+}
 
-static void mult_P_Mt (struct Point P[4][4], float M[4][4], struct Point r[4][4])
+static void mult_P_Mt(struct Point P[4][4], float M[4][4], struct Point r[4][4])
 {
     for (unsigned i = 0; i < 4; i++)
         for (unsigned j = 0; j < 4; j++)
         {
-            r[i][j] = point (0, 0, 0);
-            for(int k = 0; k < 4; k++)
-                r[i][j]  = sum_points(r[i][j], scalar(M[k][j], P[i][k]));
+            r[i][j] = point(0, 0, 0);
+            for (int k = 0; k < 4; k++)
+                r[i][j] = sum_points(r[i][j], scalar(M[k][j], P[i][k]));
         }
 }
 
-static void mult_M_P (float M[4][4], struct Point P[4][4], struct Point r[4][4])
+static void mult_M_P(float M[4][4], struct Point P[4][4], struct Point r[4][4])
 {
     for (unsigned i = 0; i < 4; i++)
         for (unsigned j = 0; j < 4; j++)
         {
-            r[i][j] = point (0, 0, 0);
+            r[i][j] = point(0, 0, 0);
             for (unsigned k = 0; k < 4; k++)
                 r[i][j] = sum_points(r[i][j], scalar(M[i][k], P[k][j]));
         }
 }
 
-
-static void mult_M_P_Mt (float M[4][4], float Mt[4][4], struct Point P[4][4], struct Point res[4][4])
+static void mult_M_P_Mt(float M[4][4], float Mt[4][4], struct Point P[4][4], struct Point res[4][4])
 {
     struct Point aux[4][4];
     mult_M_P(M, P, aux);
@@ -496,59 +513,78 @@ static void mult_M_P_Mt (float M[4][4], float Mt[4][4], struct Point P[4][4], st
 
 struct Point get_bezier_point(struct Point MPM[4][4], float u, float v)
 {
-    float t[4] = { u * u * u, u * u, u, 1};
-    float tl[4] = { 3 * u * u, 2 * u, 1, 0};
-    float vv[4] = { v * v * v, v * v, v, 1};
+    float t[4] = {u * u * u, u * u, u, 1};
+    float tl[4] = {3 * u * u, 2 * u, 1, 0};
+    float vv[4] = {v * v * v, v * v, v, 1};
 
     struct Point tmp[4];
 
-   for(int i = 0; i < 4; i++)
-   {
+    for (int i = 0; i < 4; i++)
+    {
         struct Point aux0 = scalar(tl[0], MPM[i][0]);
         struct Point aux1 = scalar(tl[1], MPM[i][1]);
         struct Point aux2 = scalar(tl[2], MPM[i][2]);
         struct Point aux3 = scalar(tl[3], MPM[i][3]);
 
-        tmp[i] = sum_points(sum_points(sum_points(aux0,aux1), aux2), aux3);
-   }
+        tmp[i] = sum_points(sum_points(sum_points(aux0, aux1), aux2), aux3);
+    }
 
-    
-    for(int i = 0; i < 4; i++)
-   {
+    for (int i = 0; i < 4; i++)
+    {
         struct Point aux0 = scalar(t[0], MPM[i][0]);
         struct Point aux1 = scalar(t[1], MPM[i][1]);
         struct Point aux2 = scalar(t[2], MPM[i][2]);
         struct Point aux3 = scalar(t[3], MPM[i][3]);
 
-        tmp[i] = sum_points(sum_points(sum_points(aux0,aux1), aux2), aux3);
-   }
+        tmp[i] = sum_points(sum_points(sum_points(aux0, aux1), aux2), aux3);
+    }
 
-    for(int i = 0; i < 4; i++)
-   {
+    for (int i = 0; i < 4; i++)
+    {
         struct Point aux0 = scalar(t[0], MPM[i][0]);
         struct Point aux1 = scalar(t[1], MPM[i][1]);
         struct Point aux2 = scalar(t[2], MPM[i][2]);
         struct Point aux3 = scalar(t[3], MPM[i][3]);
 
-        tmp[i] = sum_points(sum_points(sum_points(aux0,aux1), aux2), aux3);
-   }
+        tmp[i] = sum_points(sum_points(sum_points(aux0, aux1), aux2), aux3);
+    }
 
     struct Point aux0 = scalar(vv[0], tmp[0]);
     struct Point aux1 = scalar(vv[1], tmp[1]);
     struct Point aux2 = scalar(vv[2], tmp[2]);
     struct Point aux3 = scalar(vv[3], tmp[3]);
 
-    return sum_points(sum_points(sum_points(aux0,aux1), aux2), aux3);
+    return sum_points(sum_points(sum_points(aux0, aux1), aux2), aux3);
 }
 
 void gen_single_patch(FILE *out, std::vector<int> patch, std ::vector<struct Point> control_ps, float tess)
 {
     //bezier matrix
-    float M[4][4] = 
-        {{ -1,  3, -3, 1, },
-        {  3, -6,  3, 0, },
-        { -3,  3,  0, 0, },
-        {  1,  0,  0, 0, }};
+    float M[4][4] =
+        {{
+             -1,
+             3,
+             -3,
+             1,
+         },
+         {
+             3,
+             -6,
+             3,
+             0,
+         },
+         {
+             -3,
+             3,
+             0,
+             0,
+         },
+         {
+             1,
+             0,
+             0,
+             0,
+         }};
 
     float Mt[4][4];
 
@@ -556,34 +592,54 @@ void gen_single_patch(FILE *out, std::vector<int> patch, std ::vector<struct Poi
 
     //get the control points for this patch
     struct Point P[4][4] = {
-        { control_ps[patch[0]],  control_ps[patch[1]],  control_ps[patch[2]],  control_ps[patch[3]],  },
-        { control_ps[patch[4]],  control_ps[patch[5]],  control_ps[patch[6]],  control_ps[patch[7]],  },
-        { control_ps[patch[8]],  control_ps[patch[9]],  control_ps[patch[10]], control_ps[patch[11]], },
-        { control_ps[patch[12]], control_ps[patch[13]], control_ps[patch[14]], control_ps[patch[15]], },
+        {
+            control_ps[patch[0]],
+            control_ps[patch[1]],
+            control_ps[patch[2]],
+            control_ps[patch[3]],
+        },
+        {
+            control_ps[patch[4]],
+            control_ps[patch[5]],
+            control_ps[patch[6]],
+            control_ps[patch[7]],
+        },
+        {
+            control_ps[patch[8]],
+            control_ps[patch[9]],
+            control_ps[patch[10]],
+            control_ps[patch[11]],
+        },
+        {
+            control_ps[patch[12]],
+            control_ps[patch[13]],
+            control_ps[patch[14]],
+            control_ps[patch[15]],
+        },
     };
 
     struct Point M_P_Mt[4][4];
     mult_M_P_Mt(M, Mt, P, M_P_Mt);
 
-    for (unsigned i = 1; i <= 4 * tess; i++) 
+    for (unsigned i = 1; i <= 4 * tess; i++)
     {
-        float u  = ((float) i)     / (4.0 * tess);
-        float ul = ((float) i - 1) / (4.0 * tess);
+        float u = ((float)i) / (4.0 * tess);
+        float ul = ((float)i - 1) / (4.0 * tess);
 
-        for (unsigned j = 1; j <= 4 * tess; j++) 
+        for (unsigned j = 1; j <= 4 * tess; j++)
         {
-            float v  = ((float) j)     / (4.0 * tess);
-            float vl= ((float) j - 1) / (4.0 * tess);
+            float v = ((float)j) / (4.0 * tess);
+            float vl = ((float)j - 1) / (4.0 * tess);
 
-            struct Point P1 = get_bezier_point(M_P_Mt, u,  vl);
-            struct Point P2 = get_bezier_point(M_P_Mt, u,  v);
+            struct Point P1 = get_bezier_point(M_P_Mt, u, vl);
+            struct Point P2 = get_bezier_point(M_P_Mt, u, v);
             struct Point P3 = get_bezier_point(M_P_Mt, ul, vl);
             struct Point P4 = get_bezier_point(M_P_Mt, ul, v);
 
             struct Point N1 = normal(init_triangle(P1, P2, P3));
             struct Point N2 = normal(init_triangle(P3, P2, P4));
-            write_triangle(out, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1));
-            write_triangle(out, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2));
+            write_triangle(out, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1), init_triangle(N1, N1, N1));
+            write_triangle(out, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2), init_triangle(N1, N1, N1));
         }
     }
 }

@@ -204,72 +204,229 @@ void load_translate_anim(TiXmlElement *transf, struct group *g)
     g->gt.push_back(ta);
 }
 
-void load_color(TiXmlElement *color, struct group *g)
+GLuint load_texture(string name)
 {
-    struct Point col = point(0, 0, 0);
+    unsigned int t, tw, th;
+    unsigned char *texData;
+    unsigned int texID = 0;
 
-    if (color->Attribute("R"))
-        col.x = atof(color->Attribute("R"));
-    if (color->Attribute("G"))
-        col.y = atof(color->Attribute("G"));
-    if (color->Attribute("B"))
-        col.z = atof(color->Attribute("B"));
-    
-    g->colors.push_back(col);
-}
-//Function that loads the models data from the .xml and subsequently the .3d file
-void load_models(TiXmlElement *models, struct group *g)
-{
-    if(TiXmlElement *color = models->FirstChildElement("color"))
+    ilInit();
+    ilEnable(IL_ORIGIN_SET);
+    ilOriginFunc(IL_ORIGIN_UPPER_LEFT);
+    ilGenImages(1, &t);
+    ilBindImage(t);
+
+    if (!ilLoadImage((ILstring)name.c_str()))
     {
-        load_color(color, g);
+        printf("TEXTURE NOT FOUND\n");
+        return texID;
     }
+
+    tw = ilGetInteger(IL_IMAGE_WIDTH);
+    th = ilGetInteger(IL_IMAGE_HEIGHT);
+    ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+    texData = ilGetData();
+
+    glGenTextures(1, &texID);
+
+    glBindTexture(GL_TEXTURE_2D, texID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tw, th, 0, GL_RGBA, GL_UNSIGNED_BYTE, texData);
+    //glGenerateMipmap(GL_TEXTURE_2D);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    return texID;
+}
+
+void load_group_textures(struct group *group)
+{
+    for (int i = 0; i < group->models.size(); i++)
+    {
+        if (group->models[i].hastexture)
+        {
+            string fileDir = "../../assets/textures/";
+            string textname = group->models[i].textName;
+            string file = fileDir + textname;
+            group->models[i].textID = load_texture(file);
+        }
+    }
+}
+
+void load_textures(vector<struct group> *groups)
+{
+    for (int i = 0; i < groups->size(); i++)
+    {
+        load_group_textures(&(groups->at(i)));
+        load_textures(&((*groups)[i].child));
+    }
+}
+
+struct material init_material(int type)
+{
+    struct material m;
+    switch (type)
+    {
+    case 0:
+        m.type = DIF;
+        m.color[0] = 0;
+        m.color[1] = 0;
+        m.color[2] = 0;
+        m.color[3] = 1;
+        break;
+    case 1:
+        m.type = SPEC;
+        m.color[0] = 0;
+        m.color[1] = 0;
+        m.color[2] = 0;
+        m.color[3] = 1;
+        break;
+    case 2:
+        m.type = EMI;
+        m.color[0] = 0;
+        m.color[1] = 0;
+        m.color[2] = 0;
+        m.color[3] = 1;
+        break;
+    case 3:
+        m.type = AMB;
+        m.color[0] = 0;
+        m.color[1] = 0;
+        m.color[2] = 0;
+        m.color[3] = 1;
+        break;
+    case 4:
+        m.type = SHINE;
+        m.shininess = 0;
+        break;
+    }
+    return m;
+}
+
+void load_material_color(struct material *m, TiXmlElement *material)
+{
+    if (material->Attribute("R"))
+        m->color[0] = atof(material->Attribute("R"));
+    if (material->Attribute("G"))
+        m->color[1] = atof(material->Attribute("G"));
+    if (material->Attribute("B"))
+        m->color[2] = atof(material->Attribute("B"));
+    if (material->Attribute("A"))
+        m->color[3] = atof(material->Attribute("A"));
+}
+
+struct material load_materials(TiXmlElement *material)
+{
+    struct material m;
+    const char *type = material->Attribute("type");
+    if (!strcmp(type, "DIFFUSE"))
+    {
+        m = init_material(0);
+        load_material_color(&m, material);
+    }
+    if (!strcmp(type, "SPECULAR"))
+    {
+        m = init_material(1);
+        load_material_color(&m, material);
+    }
+    if (!strcmp(type, "EMISSIVE"))
+    {
+        m = init_material(2);
+        load_material_color(&m, material);
+    }
+    if (!strcmp(type, "AMBIENT"))
+    {
+        m = init_material(3);
+        load_material_color(&m, material);
+    }
+    if (!strcmp(type, "SHININESS"))
+    {
+        m = init_material(4);
+        if (material->Attribute("Shine"))
+            m.shininess = atof(material->Attribute("Shine"));
+    }
+    return m;
+}
+
+//Function that loads the models data from the .xml and subsequently the .3d file
+void load_models(TiXmlElement *models, struct group *g, int *ntextures, int *nmodels)
+{
     for (TiXmlElement *model = models->FirstChildElement("model"); model; model = model->NextSiblingElement())
     {
-        const char *file = model->Attribute("file");
-        if (file)
+        struct model m;
+
+        if (TiXmlElement *files = model->FirstChildElement("files"))
         {
-            string fileDir = "../../assets/";
-            fstream f;
-            string file3d = fileDir + file;
-            f.open(file3d, ios::in);
-            if (f.is_open())
+            (*nmodels)++;
+            const char *file = files->Attribute("file");
+            if (file)
             {
-                string line;
-                vector<struct Point> points;
-                vector<struct Point> norms;
-                getline(f, line);
-                while (!line.empty())
+                string fileDir = "../../assets/";
+                fstream f;
+                string file3d = fileDir + file;
+                f.open(file3d, ios::in);
+                if (f.is_open())
                 {
-                    double x, y, z;
-
-                    //model points
-                    sscanf(line.c_str(), "%lf %lf %lf\n", &x, &y, &z);
-
-                    struct Point p = point(x, y, z);
-                    points.push_back(p);
+                    string line;
                     getline(f, line);
+                    while (!line.empty())
+                    {
+                        double x, y, z;
 
-                    //model normals
-                    sscanf(line.c_str(), "%lf %lf %lf\n", &x, &y, &z);
+                        //model points
+                        sscanf(line.c_str(), "%lf %lf %lf\n", &x, &y, &z);
 
-                    struct Point n = point(x, y, z);
-                    norms.push_back(n);
-                    getline(f, line);
+                        struct Point p = point(x, y, z);
+                        m.points.push_back(p);
+                        getline(f, line);
+
+                        //model normals
+                        sscanf(line.c_str(), "%lf %lf %lf\n", &x, &y, &z);
+
+                        struct Point n = point(x, y, z);
+                        m.normals.push_back(n);
+                        getline(f, line);
+
+                        //texture points
+                        sscanf(line.c_str(), "%lf %lf %lf\n", &x, &y, &z);
+
+                        struct Point t = point(x, y, z);
+                        m.textcords.push_back(t);
+                        getline(f, line);
+                    }
+                    if (files->Attribute("texture"))
+                    {
+                        (*ntextures)++;
+                        m.hastexture = true;
+                        m.textName = files->Attribute("texture");
+                    }
+                    f.close();
                 }
-                g->models.push_back(points);
-                g->normals.push_back(norms);
-                f.close();
+                else
+                {
+                    printf("erro ao abrir o ficheiro .3d!\n");
+                }
             }
             else
             {
-                printf("erro ao abrir o ficheiro .3d!\n");
+                printf("Erro no ficheiro xml!!\n");
             }
         }
-        else
+        for (TiXmlElement *material = model->FirstChildElement("material"); material; material = material->NextSiblingElement())
         {
-            printf("Erro no ficheiro xml!!\n");
+            m.hasmaterial = true;
+            m.materials.push_back(load_materials(material));
         }
+
+        g->models.push_back(m);
     }
 }
 
@@ -322,10 +479,9 @@ struct group process_groups(TiXmlElement *group, struct scene *scene)
     TiXmlElement *models = group->FirstChildElement("models");
     if (models)
     {
-        scene->nModels++;
-    
-        load_models(models, &g);
+        load_models(models, &g, &(scene->nTextures), &(scene->nModels));
     }
+
     return g;
 }
 
@@ -342,24 +498,39 @@ struct light init_light(int type)
     {
     case 0:
         light.type = DIREC;
-        light.pos[0] = 0.0; light.pos[1] = 0.0; light.pos[2] = 0.0; light.pos[3] = 0.0;
+        light.pos[0] = 0.0;
+        light.pos[1] = 0.0;
+        light.pos[2] = 0.0;
+        light.pos[3] = 0.0;
         break;
     case 1:
         light.type = SPOT;
-        light.pos[0] = 0.0; light.pos[1] = 0.0; light.pos[2] = 0.0; light.pos[3] = 1.0; 
-        break;        
+        light.pos[0] = 0.0;
+        light.pos[1] = 0.0;
+        light.pos[2] = 0.0;
+        light.pos[3] = 1.0;
+        break;
     case 2:
         light.type = AMBIENT;
-        light.color[0] = 0.0; light.color[1] = 0.0; light.color[2] = 0.0; light.color[3] = 1.0;   
-        break;         
+        light.color[0] = 0.0;
+        light.color[1] = 0.0;
+        light.color[2] = 0.0;
+        light.color[3] = 1.0;
+        break;
     case 3:
         light.type = DIFFUSE;
-        light.color[0] = 0.0; light.color[1] = 0.0; light.color[2] = 0.0; light.color[3] = 1.0;  
-         break;             
+        light.color[0] = 0.0;
+        light.color[1] = 0.0;
+        light.color[2] = 0.0;
+        light.color[3] = 1.0;
+        break;
     case 4:
-        light.type = SPEC; 
-        light.color[0] = 0.0; light.color[1] = 0.0; light.color[2] = 0.0; light.color[3] = 1.0; 
-        break;                
+        light.type = SPECULAR;
+        light.color[0] = 0.0;
+        light.color[1] = 0.0;
+        light.color[2] = 0.0;
+        light.color[3] = 1.0;
+        break;
     }
 
     return light;
@@ -367,59 +538,59 @@ struct light init_light(int type)
 
 void load_light_pos(struct light *l, TiXmlElement *light)
 {
-    if(light->Attribute("posX"))
+    if (light->Attribute("posX"))
         l->pos[0] = atof(light->Attribute("posX"));
-    if(light->Attribute("posY"))
+    if (light->Attribute("posY"))
         l->pos[1] = atof(light->Attribute("posY"));
-    if(light->Attribute("posZ"))
-        l->pos[2] = atof(light->Attribute("posZ"));     
+    if (light->Attribute("posZ"))
+        l->pos[2] = atof(light->Attribute("posZ"));
 }
 
 void load_light_color(struct light *l, TiXmlElement *light)
 {
-    if(light->Attribute("R"))
-        l->color[0] = atof(light->Attribute("R"));   
-    if(light->Attribute("G"))
-        l->color[1] = atof(light->Attribute("G")); 
-    if(light->Attribute("B"))
-        l->color[2] = atof(light->Attribute("B")); 
-    if(light->Attribute("A"))
-        l->color[3] = atof(light->Attribute("A"));         
+    if (light->Attribute("R"))
+        l->color[0] = atof(light->Attribute("R"));
+    if (light->Attribute("G"))
+        l->color[1] = atof(light->Attribute("G"));
+    if (light->Attribute("B"))
+        l->color[2] = atof(light->Attribute("B"));
+    if (light->Attribute("A"))
+        l->color[3] = atof(light->Attribute("A"));
 }
 
 void load_lights(vector<vector<struct light>> *ls, TiXmlElement *lighting)
 {
-    for(TiXmlElement *lights = lighting->FirstChildElement("lights");  lights; lights = lights->NextSiblingElement())
+    for (TiXmlElement *lights = lighting->FirstChildElement("lights"); lights; lights = lights->NextSiblingElement())
     {
         vector<struct light> laux;
 
-        for(TiXmlElement *light = lights->FirstChildElement("light"); light; light = light->NextSiblingElement())
+        for (TiXmlElement *light = lights->FirstChildElement("light"); light; light = light->NextSiblingElement())
         {
             struct light l;
-            if(!strcmp(light->Attribute("type"), "DIRECTIONAL"))
+            if (!strcmp(light->Attribute("type"), "DIRECTIONAL"))
             {
                 l = init_light(0);
                 load_light_pos(&l, light);
             }
-            if(!strcmp(light->Attribute("type"), "SPOT")) 
+            if (!strcmp(light->Attribute("type"), "SPOT"))
             {
                 l = init_light(1);
-                load_light_pos(&l, light);                  
-            }           
-            if(!strcmp(light->Attribute("type"), "AMBIENT"))
+                load_light_pos(&l, light);
+            }
+            if (!strcmp(light->Attribute("type"), "AMBIENT"))
             {
                 l = init_light(2);
-                load_light_color(&l, light);                                                                                     
+                load_light_color(&l, light);
             }
-            if(!strcmp(light->Attribute("type"), "DIFFUSE"))
+            if (!strcmp(light->Attribute("type"), "DIFFUSE"))
             {
                 l = init_light(3);
-                load_light_color(&l, light);             
+                load_light_color(&l, light);
             }
-            if(!strcmp(light->Attribute("type"), "SPECULAR"))
+            if (!strcmp(light->Attribute("type"), "SPECULAR"))
             {
                 l = init_light(4);
-                load_light_color(&l, light);                   
+                load_light_color(&l, light);
             }
 
             laux.push_back(l);
@@ -431,14 +602,17 @@ void load_lights(vector<vector<struct light>> *ls, TiXmlElement *lighting)
 
 void load_scene(struct scene *scene, TiXmlElement *root)
 {
+
+    scene->nTextures = 0;
+    scene->nModels = 0;
     TiXmlElement *lighting = root->FirstChildElement("lighting");
 
-    if(lighting)
+    if (lighting)
     {
         load_lights(&(scene->lights), lighting);
     }
 
-    for(TiXmlElement *group = root->FirstChildElement("group"); group; group = group->NextSiblingElement())
+    for (TiXmlElement *group = root->FirstChildElement("group"); group; group = group->NextSiblingElement())
     {
         load_groups(scene, group);
     }
@@ -447,14 +621,12 @@ void draw_models(struct group g)
 {
     for (unsigned i = 0; i < g.models.size(); i++)
     {
-        vector<struct Point> model = g.models[i];
+        vector<struct Point> model = g.models[i].points;
         for (unsigned j = 0; j < model.size(); j += 3)
         {
-            glBegin(GL_TRIANGLES);
             glVertex3f(model[j].x, model[j].y, model[j].z);
             glVertex3f(model[j + 1].x, model[j + 1].y, model[j + 1].z);
             glVertex3f(model[j + 2].x, model[j + 2].y, model[j + 2].z);
-            glEnd();
         }
     }
 }
@@ -602,33 +774,45 @@ void draw_gt(struct group g, int elapsed)
     }
 }
 
-void draw_color(struct Point color)
+void draw_materials(vector<struct material> materials)
 {
-    glColor3f(color.x, color.y, color.z);
+    for (struct material m : materials)
+    {
+        if (m.type == DIF)
+            glMaterialfv(GL_FRONT, GL_DIFFUSE, m.color);
+        if (m.type == SPEC)
+            glMaterialfv(GL_FRONT, GL_SPECULAR, m.color);
+        if (m.type == EMI)
+            glMaterialfv(GL_FRONT, GL_EMISSION, m.color);
+        if (m.type == AMB)
+            glMaterialfv(GL_FRONT, GL_AMBIENT, m.color);
+        if (m.type == SHINE)
+            glMaterialf(GL_FRONT, GL_SHININESS, m.shininess);
+    }
 }
 
 void draw_light(struct light light, int id)
 {
 
-    if(light.type == DIREC)
+    if (light.type == DIREC)
         glLightfv(GL_LIGHT0 + id, GL_POSITION, light.pos);
-    if(light.type == SPOT)
+    if (light.type == SPOT)
         glLightfv(GL_LIGHT0 + id, GL_POSITION, light.pos);
-    if(light.type == AMBIENT)
-        glLightfv(GL_LIGHT0 + id, GL_AMBIENT, light.color);  
-    if(light.type == DIFFUSE)
-        glLightfv(GL_LIGHT0 + id, GL_DIFFUSE, light.color);                 
-    if(light.type == SPEC)
-        glLightfv(GL_LIGHT0 + id, GL_SPECULAR, light.color);   
+    if (light.type == AMBIENT)
+        glLightfv(GL_LIGHT0 + id, GL_AMBIENT, light.color);
+    if (light.type == DIFFUSE)
+        glLightfv(GL_LIGHT0 + id, GL_DIFFUSE, light.color);
+    if (light.type == SPECULAR)
+        glLightfv(GL_LIGHT0 + id, GL_SPECULAR, light.color);
 }
 
 void render_lighting(vector<vector<struct light>> lights)
 {
     glEnable(GL_LIGHTING);
-    for(int i = 0; i < lights.size(); i++)
+    for (int i = 0; i < lights.size(); i++)
     {
-	    glEnable(GL_LIGHT0 + i);         
-        for(struct light light : lights[i])
+        glEnable(GL_LIGHT0 + i);
+        for (struct light light : lights[i])
         {
             draw_light(light, i);
         }

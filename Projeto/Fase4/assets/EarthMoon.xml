@@ -1,0 +1,36 @@
+<scene>
+	<lighting>
+		<lights>
+			<light type="DIRECTIONAL" posX="1" posY="1" posZ="1" />
+			<light type="AMBIENT" R="1" G="1" B="1" />
+			<light type="DIFFUSE" R="1" G="1" B="1"  />
+ 		</lights>
+	</lighting>
+	<group>
+		<rotate time=100 axisX=0 axisY=1 axisZ=0 />
+		<scale X="6" Y="6" Z="6" />
+		<models>
+			<model>
+            		<files file="sphere.3d" texture="earth.jpg"/> <!-- EARTH -->
+			</model>
+		</models>
+	<group>
+		<scale X="0.3" Y="0.3" Z="0.3" />
+		<translate time= 10>
+			<point X=0 Y=0 Z=-5 />
+			<point X=-3.535 Y=0 Z=-3.535 />
+			<point X=-5 Y=0 Z=0 />
+			<point X=-3.535 Y=0 Z=3.535 />
+			<point X=0 Y=0 Z=5 />
+			<point X=3.535 Y=0 Z=3.535 />
+			<point X=5 Y=0 Z=0 />
+			<point X=3.535 Y=0 Z=-3.535 />				
+		</translate>
+		<models>
+			<model>
+            		<files file="sphere.3d" texture="moon.jpg"/> <!-- MOON -->
+			</model>
+		</models>
+	</group>
+	</group>
+</scene>

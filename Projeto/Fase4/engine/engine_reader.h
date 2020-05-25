@@ -50,12 +50,13 @@ struct gt
     vector<Point> control_points;
 };
 
-enum l_type {
-    DIREC,   // Directional Light   
-    SPOT,  // Spotlight
-    AMBIENT, //Ambient light
-    DIFFUSE, // Diffuse light
-    SPEC,   // Specular light
+enum l_type
+{
+    DIREC,    // Directional Light
+    SPOT,     // Spotlight
+    AMBIENT,  //Ambient light
+    DIFFUSE,  // Diffuse light
+    SPECULAR, // Specular light
 };
 
 struct light
@@ -65,14 +66,40 @@ struct light
     GLfloat color[4];
 };
 
+enum material_type
+{
+    DIF,
+    SPEC,
+    EMI,
+    AMB,
+    SHINE,
+};
+
+struct material
+{
+    GLfloat color[4];
+    GLfloat shininess;
+    enum material_type type;
+};
+
+struct model
+{
+    vector<struct Point> points;
+    vector<struct Point> normals;
+    vector<struct Point> textcords;
+    bool hastexture = false;
+    bool hasmaterial = false;
+    GLuint textID;
+    const char *textName;
+    vector<struct material> materials;
+};
+
 //Struct that represents a group and its subgroups of models and their associated geometric transformations
 struct group
 {
+    vector<struct model> models;
     vector<struct gt> gt;
-    vector<vector<struct Point>> models;
-    vector<vector<struct Point>> normals;    
     vector<struct group> child;
-    vector<struct Point> colors;
 };
 
 //Struct that represents a scene as a vector of groups and and int that tells us how many models the scene has
@@ -81,6 +108,7 @@ struct scene
     vector<struct group> groups;
     vector<vector<struct light>> lights;
     int nModels;
+    int nTextures;
 };
 
 //Fuction that draws the geometric transformations
@@ -99,3 +127,8 @@ void draw_color(struct Point);
 
 //Draws the lights
 void render_lighting(vector<vector<struct light>> lights);
+
+//loads the textures of the scene
+void load_textures(vector<struct group> *);
+
+void draw_materials(vector<struct material>);

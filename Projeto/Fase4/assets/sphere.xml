@@ -2,13 +2,21 @@
 	<lighting>
 		<lights>
 			<light type="DIRECTIONAL" posX="1" posY="1" posZ="1" />
-			<light type="AMBIENT" R="1" G="0" B="0" />
-			<light type="DIFFUSE" R="1" G="0.0" B="0.0" />
+			<light type="AMBIENT" R="1" G="0.0" B="0.0" />
+			<light type="DIFFUSE" B="0.8" />
+			<light type="SPECULAR" R="0.8" G="0.8"  />
+
  		</lights>
 	</lighting>
 	<group>
 		<models>
-			<model file="sphere.3d" />
+			<model>
+				<files file="sphere.3d" texture="earth.jpg"/>
+				<material type="DIFFUSE" R="1" B ="0.8" />
+				<material type="EMISSIVE" B="0.3"  />
+				<material type="SPECULAR" R="0.8" G="0.8" />
+				<material type="SHININESS" Shine="10" />
+			</model>
 		</models>
 	</group>
 </scene>
