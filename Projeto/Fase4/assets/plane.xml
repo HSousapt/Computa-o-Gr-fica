@@ -1,7 +1,9 @@
 <scene>
 	<group>
 		<models>
-			<model file="plane.3d" />
+			<model>
+				<files file="plane.3d" texture="earth.jpg" />
+			</model>
 		</models>
 	</group>
 </scene>

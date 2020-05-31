@@ -122,8 +122,11 @@ void write_plane_data(FILE *f, struct Plane pl)
 {
     struct Point N = point(0.0, 1.0, 0.0);
     struct Plane nps = init_plane(N, N, N, N);
-
-    write_plane(f, pl, nps, nps);
+    struct Point T1 = point(0, 0, 0);
+    struct Point T2 = point(0, 1, 0);
+    struct Point T3 = point(1, 0, 0);
+    struct Point T4 = point(1, 1, 0);
+    write_plane(f, pl, nps, init_plane(T1, T2, T3, T4));
 }
 
 void write_box(FILE *f, struct Box cube)
@@ -135,6 +138,9 @@ void write_box(FILE *f, struct Box cube)
     float deltaX = cube.width / cube.divs;
     float deltaY = cube.height / cube.divs;
     float deltaZ = cube.depth / cube.divs;
+    float texFactorX = 1.0f / deltaX;
+    float texFactorY = 1.0f / deltaY;
+    float texFactorZ = 1.0f / deltaZ;
 
     for (int i = 0; i <= divs; i++)
     {
@@ -152,6 +158,11 @@ void write_box(FILE *f, struct Box cube)
                     float coordz = -z + (k * deltaZ);
                     float coordz1 = -z + ((k + 1) * deltaZ);
 
+                    struct Point T1 = point(0, 0, 0);
+                    struct Point T2 = point(0, 1, 0);
+                    struct Point T3 = point(1, 0, 0);
+                    struct Point T4 = point(1, 1, 0);
+
                     Point P1, P2, P3, P4;
                     P1 = point(coordx, coordy, coordz);
                     P2 = point(coordx, coordy, coordz1);
@@ -159,10 +170,10 @@ void write_box(FILE *f, struct Box cube)
                     P4 = point(coordx, coordy1, coordz1);
 
                     //BACK-LEFT FACES
-                    struct Point N1 = normal(init_triangle(P1, P2, P3));
-                    struct Point N2 = normal(init_triangle(P3, P2, P4));
-                    write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1), init_triangle(N1, N1, N1));
-                    write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2), init_triangle(N1, N1, N1));
+                    struct Point N1 = normal(init_triangle(P1, P4, P3));
+                    struct Point N2 = normal(init_triangle(P1, P2, P4));
+                    write_triangle(f, init_triangle(P1, P4, P3), init_triangle(N1, N1, N1), init_triangle(T1, T4, T3));
+                    write_triangle(f, init_triangle(P1, P2, P4), init_triangle(N2, N2, N2), init_triangle(T1, T2, T4));
                 }
             }
         }
@@ -181,6 +192,11 @@ void write_box(FILE *f, struct Box cube)
                         float coordz1 = -z + ((k + 1) * deltaZ);
                         struct Point N = point(1.0, 0.0, 0.0);
 
+                        struct Point T1 = point(0, 0, 0);
+                        struct Point T2 = point(0, 1, 0);
+                        struct Point T3 = point(1, 0, 0);
+                        struct Point T4 = point(1, 1, 0);
+
                         Point P1, P2, P3, P4;
                         P1 = point(coordx, coordy, coordz);
                         P2 = point(coordx, coordy1, coordz);
@@ -191,8 +207,8 @@ void write_box(FILE *f, struct Box cube)
 
                         struct Point N1 = normal(init_triangle(P1, P2, P3));
                         struct Point N2 = normal(init_triangle(P3, P2, P4));
-                        write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1), init_triangle(N1, N1, N1));
-                        write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2), init_triangle(N1, N1, N1));
+                        write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1), init_triangle(T1, T2, T3));
+                        write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2), init_triangle(T3, T2, T4));
                     }
                 }
             }
@@ -210,6 +226,11 @@ void write_box(FILE *f, struct Box cube)
                 float coordz = -z + (j * deltaZ);
                 float coordz1 = -z + ((j + 1) * deltaZ);
 
+                struct Point T1 = point(0, 0, 0);
+                struct Point T2 = point(0, 1, 0);
+                struct Point T3 = point(1, 0, 0);
+                struct Point T4 = point(1, 1, 0);
+
                 //FACES LATERAIS
                 //BACK RIGHT FACE
 
@@ -218,10 +239,10 @@ void write_box(FILE *f, struct Box cube)
                 P3 = point(coordx, coordy1, -z);
                 P4 = point(coordx1, coordy1, -z);
 
-                struct Point N1 = normal(init_triangle(P1, P2, P3));
+                struct Point N1 = normal(init_triangle(P1, P4, P3));
                 struct Point N2 = normal(init_triangle(P3, P2, P4));
-                write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1), init_triangle(N1, N1, N1));
-                write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2), init_triangle(N1, N1, N1));
+                write_triangle(f, init_triangle(P1, P4, P3), init_triangle(N1, N1, N1), init_triangle(T1, T4, T3));
+                write_triangle(f, init_triangle(P1, P2, P4), init_triangle(N2, N2, N2), init_triangle(T1, T2, T4));
 
                 //FRONT LEFT FACE
 
@@ -232,8 +253,8 @@ void write_box(FILE *f, struct Box cube)
 
                 N1 = normal(init_triangle(P1, P2, P3));
                 N2 = normal(init_triangle(P3, P2, P4));
-                write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1), init_triangle(N1, N1, N1));
-                write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2), init_triangle(N1, N1, N1));
+                write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1), init_triangle(T1, T2, T3));
+                write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2), init_triangle(T3, T2, T4));
 
                 //TOP AND BOTTOM FACES
                 //BOTTOM FACE
@@ -245,8 +266,8 @@ void write_box(FILE *f, struct Box cube)
 
                 N1 = normal(init_triangle(P1, P2, P3));
                 N2 = normal(init_triangle(P3, P2, P4));
-                write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1), init_triangle(N1, N1, N1));
-                write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2), init_triangle(N1, N1, N1));
+                write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1), init_triangle(T1, T2, T3));
+                write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2), init_triangle(T3, T2, T4));
 
                 //TOP FACE
 
@@ -257,8 +278,8 @@ void write_box(FILE *f, struct Box cube)
 
                 N1 = normal(init_triangle(P1, P2, P3));
                 N2 = normal(init_triangle(P3, P2, P4));
-                write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1), init_triangle(N1, N1, N1));
-                write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2), init_triangle(N1, N1, N1));
+                write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1), init_triangle(T1, T2, T3));
+                write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2), init_triangle(T3, T2, T4));
             }
         }
     }
@@ -349,13 +370,16 @@ void write_cone(FILE *f, struct Cone c)
         /* draw top mini cone */
         {
             const float r = radius / st;
-            const float h = height * (st - 1) / st; //* (st - 1) / st;
+            const float h = height * (st - 1) / st;
 
             struct Point P2 = point(r * xi, h, r * zi);
             struct Point P3 = point(r * xi1, h, r * zi1);
             struct Point N = normal(init_triangle(T_origin, P2, P3));
+            struct Point T1 = point(0, 0, 0);
+            struct Point T2 = point(i / slices, i / stacks, 0);
+            struct Point T3 = point((i + 1) / stacks, (i + 1) / slices, 0);
 
-            write_triangle(f, init_triangle(T_origin, P2, P3), init_triangle(N, N, N), init_triangle(N, N, N));
+            write_triangle(f, init_triangle(T_origin, P2, P3), init_triangle(N, N, N), init_triangle(T2, T2, T2));
         }
 
         /* draw base */
@@ -364,10 +388,11 @@ void write_cone(FILE *f, struct Cone c)
             struct Point P2 = point(0, 0, 0);
             struct Point P3 = point(radius * xi1, 0, radius * zi1);
             struct Point N = normal(init_triangle(P1, P2, P3));
-            struct Point T1 = point(i / slices, 0, 0);
-            struct Point T2 = point((i + 1) / slices, 1, 0);
+            struct Point T1 = point(0.5, 0.5, 0);
+            struct Point T2 = point(0.5 + 0.2 * xi, 0.5 + 0.2 * zi, 0);
+            struct Point T3 = point(0.5 + 0.2 * xi1, 0.5 + 0.2 * zi1, 0);
 
-            write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N, N, N), init_triangle(N, N, N));
+            write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N, N, N), init_triangle(T1, T2, T3));
         }
 
         /* draw side */
@@ -389,9 +414,16 @@ void write_cone(FILE *f, struct Cone c)
             struct Point N1 = normal(init_triangle(P1, P2, P3));
             struct Point N2 = normal(init_triangle(P3, P2, P4));
 
-            struct Point T1 = point((stacks - j1) / stacks, (stacks - I) / stacks, 0);
-            write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1), init_triangle(N1, N1, N1));
-            write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2), init_triangle(N1, N1, N1));
+            float step1 = 1 / slices;
+            float step2 = 1 / stacks;
+
+            struct Point T1 = point((j1) / slices, (I) / stacks, 0);
+            struct Point T2 = point((j1 + step1) / slices, I / stacks, 0);
+            struct Point T3 = point((j1) / slices, (I + step2) / stacks, 0);
+            struct Point T4 = point((j1 + step1) / slices, (I + step2) / stacks, 0);
+
+            write_triangle(f, init_triangle(P1, P2, P3), init_triangle(N1, N1, N1), init_triangle(T1, T2, T3));
+            write_triangle(f, init_triangle(P3, P2, P4), init_triangle(N2, N2, N2), init_triangle(T3, T2, T4));
         }
     }
 }

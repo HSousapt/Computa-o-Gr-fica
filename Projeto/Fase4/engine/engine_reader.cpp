@@ -713,6 +713,7 @@ void renderCarmullRomCurve(struct gt gt)
         float Pl[3];
 
         getGlobalCatmullRomPoint(t, (float *)P, (float *)Pl, gt.control_points);
+        glColor3f(0.6, 0.6, 0.6);
         glVertex3f(P[0], P[1], P[2]);
         t += 0.001f;
     }

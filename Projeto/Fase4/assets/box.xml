@@ -2,13 +2,22 @@
 	<lighting>
 		<lights>
 			<light type="DIRECTIONAL" posX="1" posY="1" posZ="1" />
-			<light type="AMBIENT" R="0.8" G="0.8" B="0.8" />
-			<light type="DIFFUSE" R="0" G="0.0" B="0.8" />
+			<light type="AMBIENT" R="0.2" G="0.2" B="0.2" />
+			<light type="DIFFUSE" R="0.8" G="0.8" B="0.8"/>
+			<light type="SPECULAR" R="1.0" G="1.0" B="1.0" />
+
+ 		</lights>
+		<lights>
+			<light type="DIRECTIONAL" posX="5" posY="2" posZ="1" />
+			<light type="AMBIENT"B="2" />
+
  		</lights>
 	</lighting>
 	<group>
 		<models>
-			<model file="box.3d" texture="earth.jpg"/>
+			<model>
+				<files file="box.3d" texture="crate.jpg"/>
+			</model>
 		</models>
 	</group>
 </scene>

@@ -9,6 +9,8 @@ float radius = 300;
 float lx = 0.0, ly = 0.0, lz = 0.0;
 float alpha = 45.0, beta = 45.0;
 int frame = 0, timebase = 0;
+int startX, startY, tracking = 0;
+bool on_off = true;
 
 struct scene scene;
 
@@ -82,7 +84,6 @@ void draw_scene(vector<struct group> groups, int time)
 {
     for (int i = 0; i < groups.size(); i++)
     {
-        int k = 0;
         struct group group = groups[i];
         glPushMatrix();
         {
@@ -110,6 +111,19 @@ void show_fps(int time)
     }
 }
 
+void activate_lights(bool on_off)
+{
+	if(on_off)
+	{
+   		if (scene.lights.size() > 0)
+    		{
+        		render_lighting(scene.lights);
+    		}
+	}
+	else
+		glDisable(GL_LIGHTING);
+}
+
 void renderScene(void)
 {
     int time;
@@ -125,13 +139,11 @@ void renderScene(void)
               lx, ly, lz,
               0.0f, 1.0f, 0.0f);
 
-    if (scene.lights.size() > 0)
-    {
-        render_lighting(scene.lights);
-    }
-
+    activate_lights(on_off);
     // put the geometric transformations here
     time = glutGet(GLUT_ELAPSED_TIME);
+	
+
     draw_scene(scene.groups, time);
 
     // End of frame
@@ -196,6 +208,12 @@ void processKeys(unsigned char key, int xx, int yy)
     case 's':
         radius += 5;
         break;
+    case 'l':
+        if(on_off) 
+		on_off = false;
+	else
+		on_off = true;
+	break;
     }
 
     refreshCam();
@@ -292,6 +310,75 @@ void init_Gl(void)
     glEnable(GL_RESCALE_NORMAL);
 }
 
+void processMouseButtons(int button, int state, int xx, int yy)
+{
+    if (state == GLUT_DOWN)
+    {
+        startX = xx;
+        startY = yy;
+        if (button == GLUT_LEFT_BUTTON)
+            tracking = 1;
+        if (button == GLUT_RIGHT_BUTTON)
+            tracking = 2;
+    }
+    else if (state == GLUT_UP)
+    {
+        if (tracking == 1)
+        {
+            alpha += xx - startX;
+            beta += yy - startY;
+        }
+        else if (tracking == 2)
+        {
+            radius -= yy - startY;
+            if (radius < 3)
+                radius = 3.0;
+        }
+        tracking = 0;
+    }
+}
+
+void processMouseMotion(int xx, int yy)
+{
+    if (!tracking)
+        return;
+
+    int deltaX = xx - startX;
+    int deltaY = yy - startY;
+    int alphaAux;
+    int betaAux;
+    int rAux;
+
+    if (tracking == 1)
+    {
+        alphaAux = alpha + deltaX;
+        betaAux = beta + deltaY;
+        if (betaAux > 85.0)
+        {
+            betaAux = 85.0;
+        }
+        else if (betaAux < -85.0)
+        {
+            betaAux = -85.0;
+        }
+        rAux = radius;
+    }
+    else if (tracking == 2)
+    {
+        alphaAux = alpha;
+        betaAux = beta;
+        rAux = radius - deltaY;
+        if (rAux < 3)
+        {
+            rAux = 3;
+        }
+    }
+
+    px = rAux * sin(alphaAux * 3.14 / 180.0) * cos(betaAux * 3.14 / 180.0);
+    py = rAux * cos(alphaAux * 3.14 / 180.0) * cos(betaAux * 3.14 / 180.0);
+    pz = rAux * sin(betaAux * 3.14 / 180.0);
+}
+
 int main(int argc, char **argv)
 {
     if (argc < 2)
@@ -328,6 +415,8 @@ int main(int argc, char **argv)
     glutMouseFunc(change_mode);
     glutKeyboardFunc(processKeys);
     glutSpecialFunc(processSpecialKeys);
+    //glutMotionFunc(processMouseMotion);
+    //glutMouseFunc(processMouseButtons);
 
     //  OpenGL settings
     if (glewInit() != GLEW_OK)
