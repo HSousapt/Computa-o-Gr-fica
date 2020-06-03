@@ -1,12 +1,8 @@
 <scene>
 	<lighting>
 		<lights>
-			<light type="DIRECTIONAL" posX="0" posY="-1" posZ="0" />
-			<light type="AMBIENT"B="2" />
- 		</lights>
-		<lights>
 			<light type="DIRECTIONAL" posX="1" posY="1" posZ="1" />
-			<light type="AMBIENT" R="1" G="0.2" B="0.2" />
+			<light type="AMBIENT" R="0.4" G="0.4" B="0.4" />
 			<light type="DIFFUSE" R="0.8" G="0.8" B="0.8"/>
 			<light type="SPECULAR" R="1.0" G="1.0" B="1.0" />
  		</lights>
@@ -15,6 +11,9 @@
 		<models>
 			<model>
 				<files file="sphere.3d"/>
+				<material type="AMBIENT" B="0.7" />
+				<material type="SPECULAR" R="0.5" G="0.5" B="0.5" />
+				<material type="SHININESS" Shine="10" />
 			</model>
 		</models>
 	</group>

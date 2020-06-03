@@ -12,6 +12,8 @@
 		<models>
 			<model>
             		<files file="sphere.3d" texture="sun.jpg"/> <!-- SUN -->
+			<material type="AMBIENT" R="0.7" G="0.7" B="1" />
+			<material type="EMISSIVE" B="0.6" />
 			</model>
 		</models>
 	</group>
@@ -31,26 +33,8 @@
 		<models>
 			<model>
             		<files file="sphere.3d" texture="mercury.jpg"/> <!-- MERCURY -->
-			<material type="DIFFUSE" R="0.7" />
-			</model>
-		</models>
-	</group>
-	<group>
-		<scale X="6" Y="6" Z="6" />
-		<translate time= 10>
-			<point X=0 Y=0 Z=-90 />
-			<point X=-63.63 Y=0 Z=-63.63 />
-			<point X=-90 Y=0 Z=0 />
-			<point X=-63.63 Y=0 Z=63.63 />
-			<point X=0 Y=0 Z=90 />
-			<point X=63.63 Y=0 Z=63.63 />
-			<point X=90 Y=0 Z=0 />
-			<point X=63.63 Y=0 Z=-63.63 />				
-		</translate>
-		<models>
-			<model>
-            		<files file="sphere.3d" texture="venus.jpg"/> <!-- VENUS -->
-			<material type="DIFFUSE" B="0.8"/>
+			<material type="DIFFUSE" B="1" />
+			<material type="AMBIENT" R="0.2" G="0.2" B="0.2" />
 			</model>
 		</models>
 	</group>

@@ -7,16 +7,13 @@
 			<light type="SPECULAR" R="1.0" G="1.0" B="1.0" />
 
  		</lights>
-		<lights>
-			<light type="DIRECTIONAL" posX="5" posY="2" posZ="1" />
-			<light type="AMBIENT"B="2" />
-
- 		</lights>
 	</lighting>
 	<group>
 		<models>
 			<model>
 				<files file="box.3d" texture="crate.jpg"/>
+				<material type="AMBIENT" R="0.6" G="0.2" B="0.1"/>
+				<material type="AMBIENT" R="0.5" G="0.1" B="0.1"/>
 			</model>
 		</models>
 	</group>

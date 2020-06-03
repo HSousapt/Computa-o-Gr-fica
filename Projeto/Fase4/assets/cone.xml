@@ -1,7 +1,7 @@
 <scene>
 	<lighting>
 		<lights>
-			<light type="DIRECTIONAL" posX="1" posY="1" posZ="1" />
+			<light type="DIRECTIONAL" posX="1" posY="5" posZ="1" />
 			<light type="AMBIENT" B="1" />
 			<light type="DIFFUSE" R="0.8" G="0.8" B="0.8"/>
 			<light type="SPECULAR" R="1.0" G="1.0" B="1.0"/>
@@ -10,7 +10,11 @@
 	<group>
 		<models>
 			<model>
-			<files file="cone.3d" texture="earth.jpg" />
+			<files file="cone.3d"/>
+			<material type="AMBIENT" G="0.2" />
+			<material type="DIFFUSE" R="0.3" G="0.8" B="0.3"/> 
+			<material type="SPECULAR" R="0.8" G="1" B="0.8" />
+			<material type="SHININESS" Shine="20"/>
 			</model>
 		</models>
 	</group>

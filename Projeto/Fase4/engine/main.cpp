@@ -30,6 +30,76 @@ void refreshCam()
     pz = radius * cos(beta) * cos(alpha);
 }
 
+void processMouseButtons(int button, int state, int xx, int yy)
+{
+    if (state == GLUT_DOWN)
+    {
+        startX = xx;
+        startY = yy;
+        if (button == GLUT_LEFT_BUTTON)
+            tracking = 1;
+        else if (button == GLUT_RIGHT_BUTTON)
+            tracking = 2;
+        else
+            tracking = 0;
+    }
+    else if (state == GLUT_UP)
+    {
+        if (tracking == 1)
+        {
+            alpha += (xx - startX);
+            beta += (yy - startY);
+        }
+        else if (tracking == 2)
+        {
+
+            radius -= yy - startY;
+            if (radius < 3)
+                radius = 3.0;
+        }
+        tracking = 0;
+    }
+}
+
+void processMouseMotion(int xx, int yy)
+{
+    int deltaX, deltaY;
+    int alphaAux, betaAux;
+    int rAux;
+
+    if (!tracking)
+        return;
+
+    deltaX = xx - startX;
+    deltaY = yy - startY;
+
+    if (tracking == 1)
+    {
+
+        alphaAux = alpha + deltaX;
+        betaAux = beta + deltaY;
+
+        if (betaAux > 83.0)
+            betaAux = 85.0;
+        else if (betaAux < -85.0)
+            betaAux = -85.0;
+
+        rAux = radius;
+    }
+    else if (tracking == 2)
+    {
+
+        alphaAux = alpha;
+        betaAux = beta;
+        rAux = radius - deltaY;
+        if (rAux < 3)
+            rAux = 3;
+    }
+    px = rAux * sin(alphaAux * 3.14 / 180.0) * cos(betaAux * 3.14 / 180.0);
+    pz = rAux * cos(alphaAux * 3.14 / 180.0) * cos(betaAux * 3.14 / 180.0);
+    py = rAux * sin(betaAux * 3.14 / 180.0);
+}
+
 void changeSize(int w, int h)
 {
     // Prevent a divide by zero, when window is too short
@@ -113,15 +183,15 @@ void show_fps(int time)
 
 void activate_lights(bool on_off)
 {
-	if(on_off)
-	{
-   		if (scene.lights.size() > 0)
-    		{
-        		render_lighting(scene.lights);
-    		}
-	}
-	else
-		glDisable(GL_LIGHTING);
+    if (on_off)
+    {
+        if (scene.lights.size() > 0)
+        {
+            render_lighting(scene.lights);
+        }
+    }
+    else
+        glDisable(GL_LIGHTING);
 }
 
 void renderScene(void)
@@ -142,7 +212,6 @@ void renderScene(void)
     activate_lights(on_off);
     // put the geometric transformations here
     time = glutGet(GLUT_ELAPSED_TIME);
-	
 
     draw_scene(scene.groups, time);
 
@@ -167,56 +236,29 @@ void change_mode(int button, int state, int x, int y)
     }
 }
 
-void processSpecialKeys(int key, int xx, int yy)
-{
-    // put code to process special keys in here
-    switch (key)
-    {
-    case GLUT_KEY_RIGHT:
-        alpha -= 0.1;
-        break;
-
-    case GLUT_KEY_LEFT:
-        alpha += 0.1;
-        break;
-
-    case GLUT_KEY_UP:
-        beta += 0.1f;
-        if (beta > 1.5f)
-            beta = 1.5f;
-        break;
-
-    case GLUT_KEY_DOWN:
-        beta -= 0.1f;
-        if (beta < -1.5f)
-            beta = -1.5f;
-        break;
-    }
-    refreshCam();
-    glutPostRedisplay();
-}
-
 void processKeys(unsigned char key, int xx, int yy)
 {
-
     // put code to process regular keys in here
+    polMode = (polMode + 1) % 3;
     switch (key)
     {
-    case 'w':
-        radius -= 5;
+    case 'm':
+    {
+        if (polMode == 0)
+            glPolygonMode(GL_FRONT, GL_LINE);
+        if (polMode == 1)
+            glPolygonMode(GL_FRONT, GL_POINT);
+        if (polMode == 2)
+            glPolygonMode(GL_FRONT, GL_FILL);
         break;
-    case 's':
-        radius += 5;
-        break;
-    case 'l':
-        if(on_off) 
-		on_off = false;
-	else
-		on_off = true;
-	break;
     }
-
-    refreshCam();
+    case 'l':
+        if (on_off)
+            on_off = false;
+        else
+            on_off = true;
+        break;
+    }
     glutPostRedisplay();
 }
 
@@ -309,76 +351,6 @@ void init_Gl(void)
 
     glEnable(GL_RESCALE_NORMAL);
 }
-
-void processMouseButtons(int button, int state, int xx, int yy)
-{
-    if (state == GLUT_DOWN)
-    {
-        startX = xx;
-        startY = yy;
-        if (button == GLUT_LEFT_BUTTON)
-            tracking = 1;
-        if (button == GLUT_RIGHT_BUTTON)
-            tracking = 2;
-    }
-    else if (state == GLUT_UP)
-    {
-        if (tracking == 1)
-        {
-            alpha += xx - startX;
-            beta += yy - startY;
-        }
-        else if (tracking == 2)
-        {
-            radius -= yy - startY;
-            if (radius < 3)
-                radius = 3.0;
-        }
-        tracking = 0;
-    }
-}
-
-void processMouseMotion(int xx, int yy)
-{
-    if (!tracking)
-        return;
-
-    int deltaX = xx - startX;
-    int deltaY = yy - startY;
-    int alphaAux;
-    int betaAux;
-    int rAux;
-
-    if (tracking == 1)
-    {
-        alphaAux = alpha + deltaX;
-        betaAux = beta + deltaY;
-        if (betaAux > 85.0)
-        {
-            betaAux = 85.0;
-        }
-        else if (betaAux < -85.0)
-        {
-            betaAux = -85.0;
-        }
-        rAux = radius;
-    }
-    else if (tracking == 2)
-    {
-        alphaAux = alpha;
-        betaAux = beta;
-        rAux = radius - deltaY;
-        if (rAux < 3)
-        {
-            rAux = 3;
-        }
-    }
-
-    px = rAux * sin(alphaAux * 3.14 / 180.0) * cos(betaAux * 3.14 / 180.0);
-    py = rAux * cos(alphaAux * 3.14 / 180.0) * cos(betaAux * 3.14 / 180.0);
-    pz = rAux * sin(betaAux * 3.14 / 180.0);
-}
-
 int main(int argc, char **argv)
 {
     if (argc < 2)
@@ -399,7 +371,9 @@ int main(int argc, char **argv)
     TiXmlElement *root = doc.RootElement();
 
     load_scene(&scene, root);
-
+    printf("Use o rato para andar e olhar à volta\n");
+    printf("l -> ligar/desligar luzes\n");
+    printf("m -> mudar o modo de desenho\n");
     // init GLUT and the window
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
@@ -414,9 +388,8 @@ int main(int argc, char **argv)
     // put here the registration of the keyboard callbacks
     glutMouseFunc(change_mode);
     glutKeyboardFunc(processKeys);
-    glutSpecialFunc(processSpecialKeys);
-    //glutMotionFunc(processMouseMotion);
-    //glutMouseFunc(processMouseButtons);
+    glutMotionFunc(processMouseMotion);
+    glutMouseFunc(processMouseButtons);
 
     //  OpenGL settings
     if (glewInit() != GLEW_OK)
